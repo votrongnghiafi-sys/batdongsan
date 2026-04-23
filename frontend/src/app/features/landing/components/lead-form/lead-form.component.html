@@ -1,0 +1,145 @@
+<section
+  class="lead-form"
+  [class.lead-form--visible]="isVisible"
+  id="section-contact"
+  #sectionRef>
+  <div class="lead-form__inner">
+    <div class="lead-form__header">
+      <span class="section-label">Liên hệ</span>
+      <h2 class="section-title">{{ contact?.title || 'Đăng ký tư vấn' }}</h2>
+      @if (contact?.subtitle) {
+        <p class="lead-form__subtitle">{{ contact!.subtitle }}</p>
+      }
+    </div>
+
+    <div class="lead-form__content">
+      <!-- Contact info -->
+      <div class="lead-form__info">
+        @if (contact?.phone) {
+          <div class="info-card">
+            <span class="info-card__icon">📞</span>
+            <div>
+              <div class="info-card__label">Hotline</div>
+              <a [href]="'tel:' + contact!.phone" class="info-card__value">{{ contact!.phone }}</a>
+            </div>
+          </div>
+        }
+        @if (contact?.email) {
+          <div class="info-card">
+            <span class="info-card__icon">✉️</span>
+            <div>
+              <div class="info-card__label">Email</div>
+              <a [href]="'mailto:' + contact!.email" class="info-card__value">{{ contact!.email }}</a>
+            </div>
+          </div>
+        }
+        @if (contact?.address) {
+          <div class="info-card">
+            <span class="info-card__icon">📍</span>
+            <div>
+              <div class="info-card__label">Địa chỉ</div>
+              <span class="info-card__value">{{ contact!.address }}</span>
+            </div>
+          </div>
+        }
+        @if (contact?.workingHours) {
+          <div class="info-card">
+            <span class="info-card__icon">🕐</span>
+            <div>
+              <div class="info-card__label">Giờ làm việc</div>
+              <span class="info-card__value">{{ contact!.workingHours }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Form -->
+      <div class="lead-form__form-wrap">
+        <!-- Success state -->
+        @if (success) {
+          <div class="lead-form__success">
+            <span class="lead-form__success-icon">✅</span>
+            <h3 class="lead-form__success-title">Đã gửi thành công!</h3>
+            <p class="lead-form__success-msg">{{ successMessage }}</p>
+            <button class="lead-form__again-btn" (click)="success = false" type="button">
+              Gửi lại thông tin khác
+            </button>
+          </div>
+        }
+
+        <!-- Form state -->
+        @if (!success) {
+          <form class="lead-form__form" (ngSubmit)="submit()">
+            <!-- Honeypot -->
+            <div style="position: absolute; left: -9999px;">
+              <input type="text" name="website" [(ngModel)]="honeypot" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="lead-name">Họ và tên *</label>
+              <input
+                class="form-input"
+                id="lead-name"
+                name="name"
+                type="text"
+                [(ngModel)]="name"
+                placeholder="Nguyễn Văn A"
+                required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="lead-phone">Số điện thoại *</label>
+              <input
+                class="form-input"
+                id="lead-phone"
+                name="phone"
+                type="tel"
+                [(ngModel)]="phone"
+                placeholder="0909 xxx xxx"
+                required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="lead-email">Email</label>
+              <input
+                class="form-input"
+                id="lead-email"
+                name="email"
+                type="email"
+                [(ngModel)]="email"
+                placeholder="email&#64;example.com" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="lead-message">Nội dung</label>
+              <textarea
+                class="form-input form-textarea"
+                id="lead-message"
+                name="message"
+                [(ngModel)]="message"
+                placeholder="Tôi quan tâm đến..."
+                rows="4"></textarea>
+            </div>
+
+            @if (errorMessage) {
+              <div class="form-error">{{ errorMessage }}</div>
+            }
+
+            <button
+              class="form-submit"
+              type="submit"
+              [disabled]="submitting"
+              id="lead-submit-btn">
+              @if (submitting) {
+                <span class="loading-spinner" style="width:20px;height:20px;border-width:2px;"></span>
+                Đang gửi...
+              } @else {
+                Gửi thông tin
+              }
+            </button>
+          </form>
+        }
+      </div>
+    </div>
+  </div>
+</section>

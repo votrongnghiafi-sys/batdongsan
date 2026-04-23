@@ -1,0 +1,33 @@
+# Dependencies
+frontend/node_modules/
+node_modules/
+
+# Angular build output
+dist/
+frontend/dist/
+frontend/.angular/
+
+# IDE
+.vscode/
+frontend/.vscode/
+*.swp
+*.swo
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Environment / Secrets
+core/config/db.prod.php
+
+# Skill folder (dev tools)
+skill/
+
+# Uploads (user content)
+uploads/*
+!uploads/.gitkeep
+
+# Temp
+*.log
+*.tmp

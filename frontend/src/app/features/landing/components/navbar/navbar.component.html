@@ -1,0 +1,42 @@
+<nav class="navbar" [class.navbar--scrolled]="scrolled" id="main-navbar">
+  <div class="navbar__inner">
+    <a class="navbar__logo" href="/">
+      @if (config?.site?.logo_url) {
+        <img [src]="config!.site!.logo_url!" [alt]="config!.site!.name" class="navbar__logo-img" />
+      } @else {
+        <span class="navbar__logo-text">{{ config?.site?.name || 'BDS' }}</span>
+      }
+    </a>
+
+    <ul class="navbar__links" [class.navbar__links--open]="menuOpen">
+      @for (item of navItems; track item.key) {
+        <li>
+          <button class="navbar__link" (click)="navigate(item.key)" type="button">
+            {{ item.label }}
+          </button>
+        </li>
+      }
+    </ul>
+
+    <div class="navbar__actions">
+      @if (config?.site?.phone) {
+        <a [href]="'tel:' + config!.site!.phone" class="navbar__cta" id="navbar-phone-cta">
+          <span class="navbar__cta-icon">📞</span>
+          {{ config!.site!.phone }}
+        </a>
+      }
+    </div>
+
+    <button
+      class="navbar__burger"
+      [class.navbar__burger--open]="menuOpen"
+      (click)="toggleMenu()"
+      aria-label="Toggle menu"
+      id="navbar-burger"
+      type="button">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</nav>

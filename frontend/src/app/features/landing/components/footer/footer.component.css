@@ -1,0 +1,81 @@
+:host { display: block; }
+
+.footer {
+  padding: 4rem 2rem 2rem;
+  background: #050509;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.footer__inner { max-width: 1200px; margin: 0 auto; }
+
+.footer__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+.footer__logo {
+  font-size: 1.4rem; font-weight: 800;
+  color: var(--text-primary); margin: 0 0 1rem;
+  letter-spacing: -0.02em;
+}
+
+.footer__desc { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; margin: 0 0 1rem; }
+
+.footer__contact { margin: 0 0 0.5rem; }
+.footer__contact a {
+  color: var(--text-secondary); text-decoration: none;
+  font-size: 0.9rem; transition: color 0.2s;
+}
+.footer__contact a:hover { color: var(--color-primary); }
+
+.footer__links-title {
+  font-size: 0.85rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-primary); margin: 0 0 1.25rem;
+}
+
+.footer__links ul { list-style: none; margin: 0; padding: 0; }
+.footer__links li { margin-bottom: 0.5rem; }
+.footer__links button {
+  background: none; border: none; padding: 0;
+  color: var(--text-secondary); font-size: 0.9rem;
+  cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+}
+.footer__links button:hover { color: var(--color-primary); transform: translateX(4px); }
+
+.footer__cta-title {
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--text-primary); margin: 0 0 0.75rem;
+}
+.footer__cta-desc {
+  color: var(--text-secondary); font-size: 0.9rem;
+  line-height: 1.6; margin: 0 0 1.5rem;
+}
+
+.footer__cta-btn {
+  padding: 0.85rem 2rem;
+  background: var(--color-primary); color: #fff;
+  border: none; border-radius: 100px;
+  font-size: 0.9rem; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: all 0.3s ease;
+}
+.footer__cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(10,132,255,0.3);
+}
+
+.footer__bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.8rem; color: var(--text-tertiary);
+}
+
+.footer__powered { opacity: 0.5; }
+
+@media (max-width: 768px) {
+  .footer__grid { grid-template-columns: 1fr; gap: 2rem; }
+  .footer__bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+}

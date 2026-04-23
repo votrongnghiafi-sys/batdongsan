@@ -1,0 +1,37 @@
+<section
+  class="loc"
+  [class.loc--visible]="isVisible"
+  id="section-location"
+  #sectionRef>
+  <div class="loc__inner">
+    <div class="loc__header">
+      <span class="section-label">Vị trí</span>
+      <h2 class="section-title">{{ location?.title }}</h2>
+      <p class="loc__desc">{{ location?.description }}</p>
+    </div>
+
+    <div class="loc__content">
+      <!-- Map placeholder -->
+      <div class="loc__map">
+        <div class="loc__map-placeholder">
+          <span class="loc__map-icon">🗺️</span>
+          <span class="loc__map-text">Bản đồ vị trí</span>
+        </div>
+      </div>
+
+      <!-- Nearby places -->
+      <div class="loc__nearby">
+        <h3 class="loc__nearby-title">Kết nối lân cận</h3>
+        @for (item of location?.nearby; track $index) {
+          <div class="loc__nearby-item" [style.animation-delay]="($index * 0.1) + 's'">
+            <span class="loc__nearby-marker">📍</span>
+            <div class="loc__nearby-info">
+              <span class="loc__nearby-name">{{ item.name }}</span>
+              <span class="loc__nearby-distance">{{ item.distance }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

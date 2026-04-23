@@ -1,0 +1,49 @@
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__grid">
+      <!-- Brand -->
+      <div class="footer__brand">
+        <h3 class="footer__logo">{{ site?.name || 'BDS' }}</h3>
+        @if (contact?.address) {
+          <p class="footer__desc">{{ contact!.address }}</p>
+        }
+        @if (site?.phone) {
+          <p class="footer__contact">
+            <a [href]="'tel:' + site!.phone">📞 {{ site!.phone }}</a>
+          </p>
+        }
+        @if (site?.email) {
+          <p class="footer__contact">
+            <a [href]="'mailto:' + site!.email">✉️ {{ site!.email }}</a>
+          </p>
+        }
+      </div>
+
+      <!-- Quick links -->
+      <div class="footer__links">
+        <h4 class="footer__links-title">Liên kết</h4>
+        <ul>
+          <li><button (click)="scrollTo('section-about')" type="button">Giới thiệu</button></li>
+          <li><button (click)="scrollTo('section-properties')" type="button">Bảng giá</button></li>
+          <li><button (click)="scrollTo('section-amenities')" type="button">Tiện ích</button></li>
+          <li><button (click)="scrollTo('section-gallery')" type="button">Thư viện</button></li>
+          <li><button (click)="scrollTo('section-contact')" type="button">Liên hệ</button></li>
+        </ul>
+      </div>
+
+      <!-- CTA -->
+      <div class="footer__cta-block">
+        <h4 class="footer__cta-title">Quan tâm dự án?</h4>
+        <p class="footer__cta-desc">Đăng ký ngay để nhận ưu đãi đặc biệt và thông tin mới nhất.</p>
+        <button class="footer__cta-btn" (click)="scrollTo('section-contact')" type="button">
+          Đăng ký tư vấn
+        </button>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>&copy; {{ currentYear }} {{ site?.name }}. All rights reserved.</span>
+      <span class="footer__powered">Powered by BDS Platform</span>
+    </div>
+  </div>
+</footer>

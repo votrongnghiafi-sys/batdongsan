@@ -1,0 +1,104 @@
+<section
+  class="properties"
+  [class.properties--visible]="isVisible"
+  id="section-properties"
+  #sectionRef>
+  <div class="properties__inner">
+    <div class="properties__header">
+      <span class="section-label">Bảng giá</span>
+      <h2 class="section-title">Danh sách sản phẩm</h2>
+    </div>
+
+    <!-- Filters -->
+    <div class="properties__filters">
+      <button
+        class="filter-btn"
+        [class.filter-btn--active]="selectedBedrooms === null"
+        (click)="filterByBedrooms(null)"
+        type="button">
+        Tất cả
+      </button>
+      @for (bed of bedroomOptions; track bed) {
+        <button
+          class="filter-btn"
+          [class.filter-btn--active]="selectedBedrooms === bed"
+          (click)="filterByBedrooms(bed)"
+          type="button">
+          {{ bed }} PN
+        </button>
+      }
+    </div>
+
+    <!-- Loading -->
+    <div class="properties__loading" *ngIf="loading">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Grid -->
+    <div class="properties__grid" *ngIf="!loading">
+      @for (prop of properties; track prop.id) {
+        <div class="prop-card" [style.animation-delay]="($index * 0.08) + 's'">
+          <!-- Image -->
+          <div class="prop-card__image-wrap">
+            @if (prop.images?.length) {
+              <img [src]="prop.images[0].url" [alt]="prop.title" class="prop-card__image" loading="lazy" />
+            } @else {
+              <div class="prop-card__image-placeholder">🏠</div>
+            }
+            <span class="prop-card__status" [ngClass]="getStatusClass(prop.status)">
+              {{ getStatusLabel(prop.status) }}
+            </span>
+            <span class="prop-card__featured" *ngIf="prop.is_featured">⭐ Nổi bật</span>
+          </div>
+
+          <!-- Info -->
+          <div class="prop-card__body">
+            <h3 class="prop-card__title">{{ prop.title }}</h3>
+            <div class="prop-card__price">{{ formatPrice(prop.price) }}</div>
+            <div class="prop-card__meta">
+              <span *ngIf="prop.area">📐 {{ formatArea(prop.area) }}</span>
+              <span *ngIf="prop.bedrooms">🛏️ {{ prop.bedrooms }} PN</span>
+              <span *ngIf="prop.bathrooms">🚿 {{ prop.bathrooms }} WC</span>
+            </div>
+            <p class="prop-card__direction" *ngIf="prop.direction || prop.floor">
+              {{ prop.direction ? 'Hướng: ' + prop.direction : '' }}
+              {{ prop.floor ? ' · ' + prop.floor : '' }}
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Empty state -->
+    <div class="properties__empty" *ngIf="!loading && properties.length === 0">
+      <p>Không tìm thấy sản phẩm phù hợp.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="properties__pagination" *ngIf="totalPages > 1">
+      <button
+        class="page-btn"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)"
+        type="button">
+        ‹
+      </button>
+      @for (p of pages; track p) {
+        <button
+          class="page-btn"
+          [class.page-btn--active]="currentPage === p"
+          (click)="goToPage(p)"
+          type="button">
+          {{ p }}
+        </button>
+      }
+      <button
+        class="page-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)"
+        type="button">
+        ›
+      </button>
+    </div>
+  </div>
+</section>

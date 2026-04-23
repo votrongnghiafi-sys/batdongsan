@@ -1,0 +1,62 @@
+:host { display: block; }
+
+.amenities { padding: var(--section-pad-y) var(--section-pad-x); background: var(--bg-secondary); }
+.amenities__inner { max-width: 1200px; margin: 0 auto; }
+.amenities__header { text-align: center; margin-bottom: 4rem; }
+
+.amenities__header .section-label,
+.amenities__header .section-title {
+  opacity: 0; transform: translateY(20px);
+  transition: all 0.7s ease;
+}
+.amenities--visible .amenities__header .section-label,
+.amenities--visible .amenities__header .section-title {
+  opacity: 1; transform: translateY(0);
+}
+
+.amenities__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.amenity-card {
+  position: relative; padding: 2rem;
+  background: var(--glass-bg); backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border); border-radius: 20px;
+  text-align: center; overflow: hidden;
+  opacity: 0; transform: translateY(30px); transition: all 0.5s ease;
+  cursor: default;
+}
+.amenities--visible .amenity-card { opacity: 1; transform: translateY(0); }
+.amenity-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(10,132,255,0.12);
+}
+
+.amenity-card__icon {
+  font-size: 3rem; margin-bottom: 1rem;
+  filter: saturate(1.2);
+  transition: transform 0.3s ease;
+}
+.amenity-card:hover .amenity-card__icon { transform: scale(1.15) rotate(-5deg); }
+
+.amenity-card__name { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.5rem; }
+.amenity-card__desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
+
+.amenity-card__glow {
+  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle at center, rgba(10,132,255,0.06) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
+}
+.amenity-card:hover .amenity-card__glow { opacity: 1; }
+
+@media (max-width: 768px) {
+  .amenities__grid { grid-template-columns: 1fr; gap: 1rem; }
+  .amenity-card {
+    text-align: left; display: flex; align-items: center;
+    gap: 1.25rem; padding: 1.5rem;
+  }
+  .amenity-card__icon { font-size: 2.5rem; margin-bottom: 0; flex-shrink: 0; }
+}

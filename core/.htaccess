@@ -1,0 +1,7 @@
+# Block all direct access to /core
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^ - [F,L]
+</IfModule>
+Order Deny,Allow
+Deny from all

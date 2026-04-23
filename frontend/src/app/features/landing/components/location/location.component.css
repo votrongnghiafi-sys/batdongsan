@@ -1,0 +1,72 @@
+:host { display: block; }
+
+.loc { padding: var(--section-pad-y) var(--section-pad-x); background: var(--bg-primary); }
+.loc__inner { max-width: 1100px; margin: 0 auto; }
+.loc__header { text-align: center; margin-bottom: 4rem; }
+
+.loc__header .section-label,
+.loc__header .section-title {
+  opacity: 0; transform: translateY(20px); transition: all 0.7s ease;
+}
+.loc--visible .loc__header .section-label,
+.loc--visible .loc__header .section-title {
+  opacity: 1; transform: translateY(0);
+}
+
+.loc__desc {
+  color: var(--text-secondary); font-size: 1rem; margin-top: 1rem;
+  max-width: 600px; margin-inline: auto;
+  opacity: 0; transform: translateY(20px); transition: all 0.7s ease 0.15s;
+}
+.loc--visible .loc__desc { opacity: 1; transform: translateY(0); }
+
+.loc__content {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;
+}
+
+.loc__map {
+  border-radius: 20px; overflow: hidden;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  aspect-ratio: 4/3;
+  opacity: 0; transform: translateX(-30px); transition: all 0.7s ease 0.2s;
+}
+.loc--visible .loc__map { opacity: 1; transform: translateX(0); }
+
+.loc__map-placeholder {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1rem;
+}
+.loc__map-icon { font-size: 4rem; }
+.loc__map-text { color: var(--text-tertiary); font-size: 0.9rem; }
+
+.loc__nearby {
+  opacity: 0; transform: translateX(30px); transition: all 0.7s ease 0.3s;
+}
+.loc--visible .loc__nearby { opacity: 1; transform: translateX(0); }
+
+.loc__nearby-title {
+  font-size: 1.2rem; font-weight: 700;
+  color: var(--text-primary); margin-bottom: 1.5rem;
+}
+
+.loc__nearby-item {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 14px; margin-bottom: 0.75rem;
+  opacity: 0; transform: translateY(15px); transition: all 0.4s ease;
+}
+.loc--visible .loc__nearby-item { opacity: 1; transform: translateY(0); }
+.loc__nearby-item:hover {
+  border-color: var(--color-primary); transform: translateX(6px);
+}
+
+.loc__nearby-marker { font-size: 1.25rem; }
+.loc__nearby-info { display: flex; flex-direction: column; }
+.loc__nearby-name { font-weight: 600; color: var(--text-primary); font-size: 0.95rem; }
+.loc__nearby-distance { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem; }
+
+@media (max-width: 768px) {
+  .loc__content { grid-template-columns: 1fr; gap: 2rem; }
+}

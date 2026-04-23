@@ -1,0 +1,23 @@
+<section
+  class="amenities"
+  [class.amenities--visible]="isVisible"
+  id="section-amenities"
+  #sectionRef>
+  <div class="amenities__inner">
+    <div class="amenities__header">
+      <span class="section-label">Tiện ích</span>
+      <h2 class="section-title">{{ amenities?.title }}</h2>
+    </div>
+
+    <div class="amenities__grid">
+      @for (item of amenities?.items; track $index) {
+        <div class="amenity-card" [style.animation-delay]="($index * 0.1) + 's'">
+          <div class="amenity-card__icon">{{ getIcon(item.icon) }}</div>
+          <h3 class="amenity-card__name">{{ item.name }}</h3>
+          <p class="amenity-card__desc">{{ item.description }}</p>
+          <div class="amenity-card__glow"></div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

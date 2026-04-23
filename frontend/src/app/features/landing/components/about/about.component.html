@@ -1,0 +1,23 @@
+<section
+  class="about"
+  [class.about--visible]="isVisible"
+  id="section-about"
+  #sectionRef>
+  <div class="about__inner">
+    <div class="about__header">
+      <span class="about__label">Giới thiệu</span>
+      <h2 class="about__title">{{ about?.title }}</h2>
+    </div>
+    <div class="about__body">
+      <p class="about__description">{{ about?.description }}</p>
+      <div class="about__highlights" *ngIf="about?.highlights?.length">
+        @for (item of about!.highlights; track $index) {
+          <div class="about__highlight" [style.animation-delay]="($index * 0.1) + 's'">
+            <div class="about__highlight-number">{{ ($index + 1).toString().padStart(2, '0') }}</div>
+            <span class="about__highlight-text">{{ item }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

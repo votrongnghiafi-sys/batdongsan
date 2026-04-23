@@ -1,0 +1,42 @@
+<section
+  class="gallery"
+  [class.gallery--visible]="isVisible"
+  id="section-gallery"
+  #sectionRef>
+  <div class="gallery__inner">
+    <div class="gallery__header">
+      <span class="section-label">Thư viện</span>
+      <h2 class="section-title">{{ gallery?.title }}</h2>
+    </div>
+
+    <div class="gallery__grid">
+      @for (img of images; track $index) {
+        <button
+          class="gallery__item"
+          (click)="openLightbox($index)"
+          [style.animation-delay]="($index * 0.08) + 's'"
+          type="button">
+          <img [src]="img" [alt]="'Gallery ' + ($index + 1)" class="gallery__img" loading="lazy" />
+          <div class="gallery__item-overlay">
+            <span class="gallery__zoom-icon">⊕</span>
+          </div>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  @if (lightboxIdx !== null) {
+    <div class="lightbox" (click)="closeLightbox()">
+      <button class="lightbox__close" (click)="closeLightbox()" type="button">✕</button>
+      <button class="lightbox__nav lightbox__nav--prev" (click)="prevImage(); $event.stopPropagation()" type="button">‹</button>
+      <img
+        [src]="images[lightboxIdx]"
+        [alt]="'Gallery ' + (lightboxIdx + 1)"
+        class="lightbox__img"
+        (click)="$event.stopPropagation()" />
+      <button class="lightbox__nav lightbox__nav--next" (click)="nextImage(); $event.stopPropagation()" type="button">›</button>
+      <div class="lightbox__counter">{{ lightboxIdx + 1 }} / {{ images.length }}</div>
+    </div>
+  }
+</section>

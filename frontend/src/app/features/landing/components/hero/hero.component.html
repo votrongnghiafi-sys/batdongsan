@@ -1,0 +1,63 @@
+<section class="hero" id="section-hero" *ngIf="hero">
+  <!-- Background -->
+  <div class="hero__bg">
+    <div class="hero__bg-image" [style.background-image]="bgStyle"></div>
+    <div class="hero__bg-overlay"></div>
+    <div class="hero__bg-particles"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="hero__content">
+    <div class="hero__badge">
+      <span class="hero__badge-dot"></span>
+      {{ statusLabel }}
+    </div>
+
+    <h1 class="hero__title">{{ hero.title }}</h1>
+    <p class="hero__subtitle">{{ hero.subtitle }}</p>
+
+    <p class="hero__location" *ngIf="project?.location">
+      <span class="hero__location-icon">📍</span>
+      {{ project!.location }}
+    </p>
+
+    <div class="hero__actions">
+      <button
+        class="hero__cta hero__cta--primary"
+        (click)="scrollToContact()"
+        id="hero-cta-register"
+        type="button">
+        {{ hero.ctaText || 'Đăng ký tư vấn' }}
+      </button>
+      <a
+        *ngIf="hero.ctaPhone"
+        [href]="'tel:' + hero.ctaPhone"
+        class="hero__cta hero__cta--secondary"
+        id="hero-cta-phone">
+        📞 Gọi ngay
+      </a>
+    </div>
+
+    <div class="hero__stats">
+      <div class="hero__stat">
+        <span class="hero__stat-value">100+</span>
+        <span class="hero__stat-label">Căn hộ</span>
+      </div>
+      <div class="hero__stat-divider"></div>
+      <div class="hero__stat">
+        <span class="hero__stat-value">5★</span>
+        <span class="hero__stat-label">Tiện ích</span>
+      </div>
+      <div class="hero__stat-divider"></div>
+      <div class="hero__stat">
+        <span class="hero__stat-value">24/7</span>
+        <span class="hero__stat-label">An ninh</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="hero__scroll">
+    <div class="hero__scroll-line"></div>
+  </div>
+</section>

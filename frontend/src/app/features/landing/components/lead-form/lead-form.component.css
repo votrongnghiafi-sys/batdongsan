@@ -1,0 +1,115 @@
+:host { display: block; }
+
+.lead-form { padding: var(--section-pad-y) var(--section-pad-x); background: var(--bg-secondary); }
+.lead-form__inner { max-width: 1100px; margin: 0 auto; }
+.lead-form__header { text-align: center; margin-bottom: 4rem; }
+
+.lead-form__header .section-label,
+.lead-form__header .section-title {
+  opacity: 0; transform: translateY(20px); transition: all 0.7s ease;
+}
+.lead-form--visible .lead-form__header .section-label,
+.lead-form--visible .lead-form__header .section-title {
+  opacity: 1; transform: translateY(0);
+}
+
+.lead-form__subtitle {
+  color: var(--text-secondary); font-size: 1rem; margin-top: 1rem;
+  opacity: 0; transform: translateY(20px); transition: all 0.7s ease 0.15s;
+}
+.lead-form--visible .lead-form__subtitle { opacity: 1; transform: translateY(0); }
+
+.lead-form__content {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;
+}
+
+/* Contact info */
+.lead-form__info {
+  display: flex; flex-direction: column; gap: 1rem;
+  opacity: 0; transform: translateX(-30px); transition: all 0.7s ease 0.2s;
+}
+.lead-form--visible .lead-form__info { opacity: 1; transform: translateX(0); }
+
+.info-card {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 16px; transition: all 0.3s ease;
+}
+.info-card:hover { border-color: var(--color-primary); transform: translateX(6px); }
+.info-card__icon { font-size: 1.5rem; flex-shrink: 0; }
+.info-card__label { font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.15rem; }
+.info-card__value { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); text-decoration: none; }
+.info-card__value:hover { color: var(--color-primary); }
+
+/* Form */
+.lead-form__form-wrap {
+  background: var(--glass-bg); backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border); border-radius: 24px;
+  padding: 2.5rem;
+  opacity: 0; transform: translateX(30px); transition: all 0.7s ease 0.3s;
+}
+.lead-form--visible .lead-form__form-wrap { opacity: 1; transform: translateX(0); }
+
+.form-group { margin-bottom: 1.25rem; }
+
+.form-label {
+  display: block; font-size: 0.8rem; font-weight: 600;
+  color: var(--text-secondary); margin-bottom: 0.5rem;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.form-input {
+  width: 100%; padding: 0.85rem 1.25rem;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
+  border-radius: 12px; color: var(--text-primary);
+  font-size: 0.95rem; font-family: inherit;
+  transition: all 0.25s ease; outline: none;
+}
+
+.form-input::placeholder { color: var(--text-tertiary); }
+.form-input:focus { border-color: var(--color-primary); background: rgba(255,255,255,0.06); box-shadow: 0 0 0 3px rgba(10,132,255,0.1); }
+
+.form-textarea { resize: vertical; min-height: 100px; }
+
+.form-error {
+  color: #FF453A; font-size: 0.85rem; margin-bottom: 1rem;
+  padding: 0.5rem 1rem; background: rgba(255,69,58,0.1);
+  border-radius: 8px;
+}
+
+.form-submit {
+  width: 100%; padding: 1rem;
+  background: var(--color-primary); color: #fff;
+  border: none; border-radius: 14px;
+  font-size: 1rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: all 0.35s var(--ease-out);
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+
+.form-submit:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(10,132,255,0.4);
+}
+
+.form-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+/* Success */
+.lead-form__success {
+  text-align: center; padding: 3rem 1rem;
+}
+.lead-form__success-icon { font-size: 3rem; }
+.lead-form__success-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin: 1rem 0 0.5rem; }
+.lead-form__success-msg { color: var(--text-secondary); margin-bottom: 2rem; }
+.lead-form__again-btn {
+  padding: 0.75rem 2rem; background: var(--glass-bg);
+  border: 1px solid var(--glass-border); border-radius: 100px;
+  color: var(--text-primary); font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; transition: all 0.25s ease; font-family: inherit;
+}
+.lead-form__again-btn:hover { border-color: var(--color-primary); }
+
+@media (max-width: 768px) {
+  .lead-form__content { grid-template-columns: 1fr; gap: 2rem; }
+  .lead-form__form-wrap { padding: 1.75rem; }
+}
