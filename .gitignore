@@ -28,6 +28,11 @@ skill/
 uploads/*
 !uploads/.gitkeep
 
+# Archives
+*.7z
+*.zip
+*.rar
+
 # Temp
 *.log
 *.tmp
