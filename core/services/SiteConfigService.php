@@ -17,7 +17,7 @@ class SiteConfigService {
     /** All recognized config groups */
     private const VALID_KEYS = [
         'branding', 'theme', 'contact', 'features',
-        'layout', 'seo', 'lead', 'project',
+        'layout', 'seo', 'lead', 'project', 'sections',
     ];
 
     /**
@@ -94,6 +94,49 @@ class SiteConfigService {
             'showArea'     => true,
             'showStatus'   => true,
             'priceUnit'    => 'VND',
+        ],
+        // V4: section-level config (page builder foundation)
+        'sections' => [],
+    ];
+
+    /**
+     * V4 Default section configs — used when a section exists in
+     * layout.homepage but has no config in site_configs.sections.
+     *
+     * Future: can be extended with reusable section templates.
+     */
+    private const DEFAULT_SECTIONS = [
+        'hero' => [
+            'enabled' => true,
+            'title' => '',
+            'subtitle' => '',
+            'backgroundImage' => '',
+            'ctaText' => 'Liên hệ tư vấn',
+            'ctaLink' => '#section-contact',
+        ],
+        'about' => [
+            'enabled' => true,
+            'title' => 'Về dự án',
+            'description' => '',
+        ],
+        'property-list' => [
+            'enabled' => true,
+            'limit' => 6,
+            'sort' => 'price_desc',
+            'showFeaturedOnly' => false,
+        ],
+        'amenities' => [
+            'enabled' => true,
+        ],
+        'gallery' => [
+            'enabled' => true,
+            'layout' => 'grid',
+        ],
+        'location' => [
+            'enabled' => true,
+        ],
+        'lead-form' => [
+            'enabled' => true,
         ],
     ];
 
@@ -283,6 +326,83 @@ class SiteConfigService {
     }
 
     // ---------------------------------------------------------------
+    // V4: Section-level config (Page Builder foundation)
+    // ---------------------------------------------------------------
+
+    /**
+     * Merge section configs with defaults, respecting:
+     * 1. layout.homepage for ordering
+     * 2. sections config for per-section settings
+     * 3. DEFAULT_SECTIONS for missing configs
+     * 4. features toggle (gallery, map, leadForm)
+     *
+     * Returns ordered array of section configs ready for rendering.
+     *
+     * Future: supports drag & drop reorder, dynamic section templates.
+     */
+    public function getMergedSections(
+        int $siteId,
+        array $homepage,
+        array $sectionsConfig,
+        array $features
+    ): array {
+        // Feature → section key mapping (TASK 7)
+        $featureMap = [
+            'gallery'        => 'gallery',
+            'map'            => 'location',
+            'leadForm'       => 'lead-form',
+            'propertyFilter' => 'property-list',
+        ];
+
+        $result = [];
+        foreach ($homepage as $sectionKey) {
+            // Get stored config or default
+            $config = $sectionsConfig[$sectionKey]
+                ?? self::DEFAULT_SECTIONS[$sectionKey]
+                ?? ['enabled' => true];
+
+            // Merge with defaults to fill missing fields
+            if (isset(self::DEFAULT_SECTIONS[$sectionKey])) {
+                $config = array_merge(self::DEFAULT_SECTIONS[$sectionKey], $config);
+            }
+
+            // Feature toggle check (TASK 7)
+            foreach ($featureMap as $featureKey => $mappedSection) {
+                if ($mappedSection === $sectionKey && isset($features[$featureKey]) && !$features[$featureKey]) {
+                    $config['enabled'] = false;
+                }
+            }
+
+            $result[$sectionKey] = $config;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Validate section config values (TASK 8).
+     */
+    public function validateSections(array $sectionsConfig): array {
+        $errors = [];
+        $validKeys = array_keys(self::DEFAULT_SECTIONS);
+
+        foreach ($sectionsConfig as $key => $config) {
+            // Ignore unknown section keys
+            if (!in_array($key, $validKeys, true)) {
+                continue;
+            }
+            if (isset($config['enabled']) && !is_bool($config['enabled'])) {
+                $errors[] = "sections.$key.enabled must be boolean.";
+            }
+            if (isset($config['limit']) && (!is_numeric($config['limit']) || (int)$config['limit'] < 1)) {
+                $errors[] = "sections.$key.limit must be a positive integer.";
+            }
+        }
+
+        return $errors;
+    }
+
+    // ---------------------------------------------------------------
     // Public API: Full config response
     // ---------------------------------------------------------------
 
@@ -334,9 +454,17 @@ class SiteConfigService {
         }
 
         // Override layout with unified helper (TASK 4)
+        $homepage = $this->getHomepageLayout($siteId);
         $configs['layout'] = [
-            'homepage' => $this->getHomepageLayout($siteId),
+            'homepage' => $homepage,
         ];
+
+        // V4: Merge section configs with defaults + feature toggles
+        $configs['sections_config'] = $this->getMergedSections(
+            $siteId, $homepage, $configs['sections'] ?? [], $configs['features'] ?? []
+        );
+        // Remove raw sections from output (only expose merged)
+        unset($configs['sections']);
 
         // Only expose public-safe lead fields
         $configs['lead'] = [

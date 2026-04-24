@@ -487,6 +487,116 @@
       </form>
     }
 
+    <!-- ======================= SECTIONS (V4) ================== -->
+    @if (activeTab === 'sections') {
+      <div class="a-form">
+        <p class="cfg-desc">Cấu hình nội dung từng phần trên landing page. Nhấn vào để mở rộng.</p>
+        @for (sKey of homepageSections.value; track sKey) {
+          <div class="cfg-section-card">
+            <div class="cfg-section-card__header" (click)="expandedSection = expandedSection === sKey ? null : sKey">
+              <span class="cfg-section-card__title">{{ getSectionLabel(sKey) }}</span>
+              <span class="cfg-section-card__toggle">
+                <label class="a-lbl a-lbl--check" (click)="$event.stopPropagation()">
+                  <input type="checkbox"
+                    [checked]="sectionsData[sKey]?.enabled !== false"
+                    (change)="sectionsData[sKey] = sectionsData[sKey] || {}; sectionsData[sKey].enabled = $any($event.target).checked">
+                  Hiển thị
+                </label>
+                <span>{{ expandedSection === sKey ? '▲' : '▼' }}</span>
+              </span>
+            </div>
+
+            @if (expandedSection === sKey) {
+              <div class="cfg-section-card__body">
+
+                @if (sKey === 'hero') {
+                  <div class="a-fg">
+                    <label class="a-lbl">Tiêu đề</label>
+                    <input class="a-input" [value]="sectionsData['hero']?.title || ''"
+                      (input)="sectionsData['hero'] = sectionsData['hero'] || {}; sectionsData['hero'].title = $any($event.target).value">
+                  </div>
+                  <div class="a-fg">
+                    <label class="a-lbl">Phụ đề</label>
+                    <input class="a-input" [value]="sectionsData['hero']?.subtitle || ''"
+                      (input)="sectionsData['hero'] = sectionsData['hero'] || {}; sectionsData['hero'].subtitle = $any($event.target).value">
+                  </div>
+                  <div class="a-fg">
+                    <label class="a-lbl">Ảnh nền URL</label>
+                    <input class="a-input" [value]="sectionsData['hero']?.backgroundImage || ''"
+                      (input)="sectionsData['hero'] = sectionsData['hero'] || {}; sectionsData['hero'].backgroundImage = $any($event.target).value">
+                  </div>
+                  <div class="a-fg">
+                    <label class="a-lbl">Nút CTA</label>
+                    <input class="a-input" [value]="sectionsData['hero']?.ctaText || ''"
+                      (input)="sectionsData['hero'] = sectionsData['hero'] || {}; sectionsData['hero'].ctaText = $any($event.target).value">
+                  </div>
+                }
+
+                @if (sKey === 'about') {
+                  <div class="a-fg">
+                    <label class="a-lbl">Tiêu đề</label>
+                    <input class="a-input" [value]="sectionsData['about']?.title || ''"
+                      (input)="sectionsData['about'] = sectionsData['about'] || {}; sectionsData['about'].title = $any($event.target).value">
+                  </div>
+                  <div class="a-fg">
+                    <label class="a-lbl">Mô tả</label>
+                    <textarea class="a-input a-input--textarea" rows="3"
+                      [value]="sectionsData['about']?.description || ''"
+                      (input)="sectionsData['about'] = sectionsData['about'] || {}; sectionsData['about'].description = $any($event.target).value"></textarea>
+                  </div>
+                }
+
+                @if (sKey === 'property-list') {
+                  <div class="a-fg">
+                    <label class="a-lbl">Số BĐS hiển thị</label>
+                    <input class="a-input" type="number" min="1" max="50"
+                      [value]="sectionsData['property-list']?.limit || 6"
+                      (input)="sectionsData['property-list'] = sectionsData['property-list'] || {}; sectionsData['property-list'].limit = +$any($event.target).value">
+                  </div>
+                  <div class="a-fg">
+                    <label class="a-lbl">Sắp xếp</label>
+                    <select class="a-input"
+                      [value]="sectionsData['property-list']?.sort || 'price_desc'"
+                      (change)="sectionsData['property-list'] = sectionsData['property-list'] || {}; sectionsData['property-list'].sort = $any($event.target).value">
+                      <option value="price_desc">Giá cao → thấp</option>
+                      <option value="price_asc">Giá thấp → cao</option>
+                      <option value="newest">Mới nhất</option>
+                    </select>
+                  </div>
+                  <div class="a-fg">
+                    <label class="a-lbl a-lbl--check">
+                      <input type="checkbox"
+                        [checked]="sectionsData['property-list']?.showFeaturedOnly === true"
+                        (change)="sectionsData['property-list'] = sectionsData['property-list'] || {}; sectionsData['property-list'].showFeaturedOnly = $any($event.target).checked">
+                      Chỉ hiện BĐS nổi bật
+                    </label>
+                  </div>
+                }
+
+                @if (sKey === 'gallery') {
+                  <div class="a-fg">
+                    <label class="a-lbl">Kiểu hiển thị</label>
+                    <select class="a-input"
+                      [value]="sectionsData['gallery']?.layout || 'grid'"
+                      (change)="sectionsData['gallery'] = sectionsData['gallery'] || {}; sectionsData['gallery'].layout = $any($event.target).value">
+                      <option value="grid">Lưới</option>
+                      <option value="masonry">Masonry</option>
+                      <option value="carousel">Carousel</option>
+                    </select>
+                  </div>
+                }
+
+                @if (sKey !== 'hero' && sKey !== 'about' && sKey !== 'property-list' && sKey !== 'gallery') {
+                  <p class="a-hint" style="padding: 0.5rem 0">Phần này chưa có cấu hình mở rộng.</p>
+                }
+
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
     <!-- ======================= SEO =========================== -->
     @if (activeTab === 'seo') {
       <form class="a-form" [formGroup]="seoForm">

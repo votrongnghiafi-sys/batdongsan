@@ -99,6 +99,24 @@ export interface LayoutConfig {
   homepage: string[];
 }
 
+// V4: Section-level config (page builder)
+export interface SectionConfig {
+  enabled: boolean;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  backgroundImage?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  limit?: number;
+  sort?: string;
+  showFeaturedOnly?: boolean;
+  layout?: string;
+  [key: string]: unknown; // allow dynamic fields for future templates
+}
+
+export type SectionsConfigMap = Record<string, SectionConfig>;
+
 export interface SeoConfig {
   metaTitle: string;
   metaDescription: string;
@@ -218,6 +236,9 @@ export interface SiteConfig {
 
   // V3 meta
   meta?: ConfigMeta;
+
+  // V4: section-level config (page builder)
+  sections_config?: SectionsConfigMap;
 }
 
 export interface ConfigMeta {

@@ -47,32 +47,34 @@ import { FooterComponent } from './footer/footer.component';
       </div>
     }
 
-    <!-- Landing page — Dynamic Layout -->
+    <!-- Landing page — Dynamic Layout (V4: section config) -->
     @if (config && !loading) {
       <app-navbar />
       <main>
         @for (section of layout; track section) {
-          @switch (section) {
-            @case ('hero') {
-              @if (config.sections.hero) { <app-hero /> }
-            }
-            @case ('about') {
-              @if (config.sections.about) { <app-about /> }
-            }
-            @case ('property-list') {
-              @if (config.project && isFeature('propertyFilter')) { <app-property-list /> }
-            }
-            @case ('amenities') {
-              @if (config.sections.amenities) { <app-amenities /> }
-            }
-            @case ('gallery') {
-              @if (config.sections.gallery && isFeature('gallery')) { <app-gallery /> }
-            }
-            @case ('location') {
-              @if (config.sections.location && isFeature('map')) { <app-location /> }
-            }
-            @case ('lead-form') {
-              @if (isFeature('leadForm')) { <app-lead-form /> }
+          @if (isSectionEnabled(section)) {
+            @switch (section) {
+              @case ('hero') {
+                @if (config.sections?.hero) { <app-hero /> }
+              }
+              @case ('about') {
+                @if (config.sections?.about) { <app-about /> }
+              }
+              @case ('property-list') {
+                @if (config.project) { <app-property-list /> }
+              }
+              @case ('amenities') {
+                @if (config.sections?.amenities) { <app-amenities /> }
+              }
+              @case ('gallery') {
+                @if (config.sections?.gallery) { <app-gallery /> }
+              }
+              @case ('location') {
+                @if (config.sections?.location) { <app-location /> }
+              }
+              @case ('lead-form') {
+                <app-lead-form />
+              }
             }
           }
         }
@@ -166,6 +168,38 @@ export class LandingComponent implements OnInit {
   isFeature(feature: string): boolean {
     if (!this.config?.features) return true; // V1: no features config = all enabled
     return this.config.features[feature] !== false;
+  }
+
+  /**
+   * V4: Check if a section should be rendered.
+   * Priority: sections_config.enabled → features toggle → default true
+   */
+  isSectionEnabled(sectionKey: string): boolean {
+    // V4: check sections_config first
+    const sc = this.config?.sections_config?.[sectionKey];
+    if (sc && sc.enabled === false) return false;
+
+    // V3: feature toggle fallback
+    const featureMap: Record<string, string> = {
+      'gallery': 'gallery',
+      'location': 'map',
+      'lead-form': 'leadForm',
+      'property-list': 'propertyFilter',
+    };
+    const featureKey = featureMap[sectionKey];
+    if (featureKey) {
+      return this.isFeature(featureKey);
+    }
+
+    return true;
+  }
+
+  /**
+   * V4: Get section config for a specific section.
+   * Returns the config object from sections_config, or empty object.
+   */
+  getSectionConfig(sectionKey: string): Record<string, unknown> {
+    return (this.config?.sections_config?.[sectionKey] as Record<string, unknown>) ?? {};
   }
 
   reload(): void {

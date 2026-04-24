@@ -6,7 +6,7 @@ import { AiThemeService, AiPalette } from '../../../core/services/ai-theme.servi
 import { THEME_PRESETS, ThemePreset } from '../../../core/constants/theme-presets';
 import { SiteConfigMap } from '../../../core/models/interfaces';
 
-type TabKey = 'general' | 'branding' | 'theme' | 'contact' | 'project' | 'lead' | 'features' | 'layout' | 'seo';
+type TabKey = 'general' | 'branding' | 'theme' | 'contact' | 'project' | 'lead' | 'features' | 'layout' | 'sections' | 'seo';
 
 interface Tab {
   key: TabKey;
@@ -60,6 +60,7 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
     { key: 'lead',     label: 'Lead',        icon: '📝' },
     { key: 'features', label: 'Tính năng',   icon: '🔧' },
     { key: 'layout',   label: 'Bố cục',      icon: '📐' },
+    { key: 'sections', label: 'Nội dung',     icon: '🧩' },
     { key: 'seo',      label: 'SEO',         icon: '🔍' },
   ];
 
@@ -73,6 +74,10 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   featuresForm!: FormGroup;
   layoutForm!: FormGroup;
   seoForm!: FormGroup;
+
+  // V4: Section-level config
+  sectionsData: Record<string, any> = {};
+  expandedSection: string | null = null;
 
   // Available sections for layout builder
   readonly availableSections = [
@@ -228,6 +233,11 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
     const homepage = configs.layout?.homepage || [];
     this.homepageSections.clear();
     homepage.forEach(s => this.homepageSections.push(new FormControl(s)));
+
+    // V4: Sections config
+    if ((configs as any).sections) {
+      this.sectionsData = { ...(configs as any).sections };
+    }
   }
 
   // ---------------------------------------------------------------
@@ -309,6 +319,9 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
           layout: { homepage: this.homepageSections.value },
           seo: this.seoForm.value,
         };
+
+        // V4: Include sections config
+        (configs as any).sections = this.sectionsData;
 
         this.admin.updateSiteConfigs(siteId, configs).subscribe({
           next: () => {
