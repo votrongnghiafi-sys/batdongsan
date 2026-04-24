@@ -1,7 +1,8 @@
-# BDS Multi-Site — Full Site Configuration Spec
+# BDS Multi-Site — Full Site Configuration Spec (V3)
 
-> Exported: 2026-04-24T21:00:00+03:00
+> Updated: 2026-04-24T23:18:00+03:00
 > Database: `bds_multisite`
+> Config Version: V3 (SaaS-ready)
 
 ---
 
@@ -9,13 +10,26 @@
 
 | Table | Records | Purpose |
 |-------|---------|---------|
-| `sites` | 2 | Core site info (key, domain, colors) |
-| `site_configs` | 16 | V2 JSON config (8 groups × 2 sites) |
+| `sites` | 2 | Core site identity (key, domain, is_active) |
+| `site_configs` | 16 | Source of truth — 8 JSON config groups × 2 sites |
 | `projects` | 2 | Dự án bất động sản |
 | `properties` | 11 | Bất động sản (6 + 5) |
 | `property_images` | 0 | Ảnh BĐS |
-| `site_sections` | 12 | Landing page sections (6 × 2) |
+| `site_sections` | 12 | V1 layout fallback (6 × 2) |
 | `leads` | 0 | Form liên hệ |
+
+### Source of Truth Hierarchy
+
+```
+site_configs    ← PRIMARY (V3, SaaS-ready)
+  ↓ fallback
+sites table     ← LEGACY (logo_url, primary_color, secondary_color, phone, email)
+  ↓ fallback
+DEFAULTS        ← hardcoded in SiteConfigService.php
+```
+
+> **TODO (future):** Drop duplicate columns from `sites` table after full migration:
+> `logo_url`, `primary_color`, `secondary_color`, `phone`, `email`
 
 ---
 
@@ -28,21 +42,21 @@
 | ID | 1 |
 | Site Key | `riverside` |
 | Name | Dự Án Riverside |
-| Domain | `reverside.batdongsanuytin.com` |
+| Domain | `riverside.batdongsanuytin.com` |
 | Active | ✅ Yes |
 | Created | 2026-04-22 19:10:53 |
 
-### Branding
+### Branding (v1)
 
 ```json
 {
-  "logoUrl": "/uploads/duana/logo.png",
+  "logoUrl": "/uploads/riverside/logo.png",
   "faviconUrl": "",
   "siteName": "Dự Án Riverside"
 }
 ```
 
-### Theme
+### Theme (v3)
 
 ```json
 {
@@ -50,24 +64,27 @@
   "secondaryColor": "#14532D",
   "backgroundColor": "#F0FDF4",
   "textColor": "#052E16",
-  "fontFamily": "Poppins"
+  "fontFamily": "Poppins",
+  "presetId": "fresh-minimal",
+  "accentColor": "#4ADE80",
+  "borderColor": "rgba(5, 46, 22, 0.12)",
+  "mutedColor": "#6B7280",
+  "borderRadius": "12px"
 }
 ```
 
-> **Preset:** Fresh Minimal
-
-### Contact
+### Contact (v1)
 
 ```json
 {
   "phone": "0909 123 456",
-  "email": "info@reverside.vn",
+  "email": "info@riverside.vn",
   "address": "Đường Nguyễn Thị Định, Quận 2, TP.HCM",
   "workingHours": "8:00 - 20:00 (T2 - CN)"
 }
 ```
 
-### Project Settings
+### Project Settings (v1)
 
 ```json
 {
@@ -80,7 +97,7 @@
 }
 ```
 
-### Lead Form
+### Lead Form (v2 → v3)
 
 ```json
 {
@@ -89,11 +106,15 @@
   "requiredFields": ["name", "phone"],
   "enableHoneypot": true,
   "rateLimit": 5,
-  "notifyEmail": "info@duana.vn"
+  "notifyEmail": "info@riverside.vn",
+  "saveToDatabase": true,
+  "autoAssign": false,
+  "webhookUrl": "",
+  "successMessage": "Cảm ơn bạn, chuyên viên sẽ liên hệ sớm."
 }
 ```
 
-### Features
+### Features (v1)
 
 ```json
 {
@@ -107,7 +128,7 @@
 }
 ```
 
-### Layout
+### Layout (v1)
 
 ```json
 {
@@ -123,14 +144,19 @@
 }
 ```
 
-### SEO
+> **Fallback chain:** `site_configs.layout.homepage` → `site_sections ORDER BY sort_order` → hardcoded default
+
+### SEO (v2 → v3)
 
 ```json
 {
   "metaTitle": "Dự Án Riverside",
   "metaDescription": "Dự án bất động sản Dự Án Riverside - Thông tin chi tiết, bảng giá mới nhất.",
-  "ogImage": "/uploads/duana/logo.png",
-  "keywords": "Riverside"
+  "ogImage": "/uploads/riverside/logo.png",
+  "keywords": "Riverside",
+  "canonicalUrl": "",
+  "robots": "index,follow",
+  "schemaJson": {}
 }
 ```
 
@@ -144,17 +170,6 @@
 | 4 | Biệt thự B02 - Corner | 10,500,000,000 | 250.0 | 4 | 3 | Available |
 | 5 | Biệt thự C01 - Sky Garden | 18,000,000,000 | 380.0 | 5 | 5 | Reserved |
 | 6 | Biệt thự C02 - Premium | 14,200,000,000 | 300.0 | 5 | 4 | Available |
-
-### Sections (V1)
-
-| Order | Section Key |
-|-------|------------|
-| 1 | hero |
-| 2 | about |
-| 3 | gallery |
-| 4 | amenities |
-| 5 | location |
-| 6 | contact |
 
 ---
 
@@ -171,7 +186,7 @@
 | Active | ✅ Yes |
 | Created | 2026-04-22 19:10:53 |
 
-### Branding
+### Branding (v1)
 
 ```json
 {
@@ -181,7 +196,7 @@
 }
 ```
 
-### Theme
+### Theme (v3)
 
 ```json
 {
@@ -189,13 +204,16 @@
   "secondaryColor": "#FFD23F",
   "backgroundColor": "#08080f",
   "textColor": "#f0f0f5",
-  "fontFamily": "Inter"
+  "fontFamily": "Inter",
+  "presetId": "sunset-orange",
+  "accentColor": "#FFD23F",
+  "borderColor": "rgba(255, 255, 255, 0.08)",
+  "mutedColor": "#6B7280",
+  "borderRadius": "12px"
 }
 ```
 
-> **Style:** Dark theme with vibrant orange + yellow
-
-### Contact
+### Contact (v1)
 
 ```json
 {
@@ -206,7 +224,7 @@
 }
 ```
 
-### Project Settings
+### Project Settings (v1)
 
 ```json
 {
@@ -219,7 +237,7 @@
 }
 ```
 
-### Lead Form
+### Lead Form (v2 → v3)
 
 ```json
 {
@@ -228,11 +246,15 @@
   "requiredFields": ["name", "phone"],
   "enableHoneypot": true,
   "rateLimit": 5,
-  "notifyEmail": "hello@sunrise-city.vn"
+  "notifyEmail": "hello@sunrise-city.vn",
+  "saveToDatabase": true,
+  "autoAssign": false,
+  "webhookUrl": "",
+  "successMessage": "Cảm ơn bạn, chuyên viên sẽ liên hệ sớm."
 }
 ```
 
-### Features
+### Features (v1)
 
 ```json
 {
@@ -246,7 +268,7 @@
 }
 ```
 
-### Layout
+### Layout (v1)
 
 ```json
 {
@@ -262,14 +284,17 @@
 }
 ```
 
-### SEO
+### SEO (v2 → v3)
 
 ```json
 {
   "metaTitle": "Sunrise City Apartments",
   "metaDescription": "Dự án bất động sản Sunrise City Apartments - Thông tin chi tiết, bảng giá mới nhất.",
   "ogImage": "/uploads/sunrise/logo.png",
-  "keywords": ""
+  "keywords": "",
+  "canonicalUrl": "",
+  "robots": "index,follow",
+  "schemaJson": {}
 }
 ```
 
@@ -283,45 +308,128 @@
 | 10 | Penthouse Duplex | 12,000,000,000 | 200.0 | 4 | 3 | Reserved |
 | 11 | Căn hộ 2PN - Garden View | 4,200,000,000 | 75.0 | 2 | 2 | Available |
 
-### Sections (V1)
-
-| Order | Section Key |
-|-------|------------|
-| 1 | hero |
-| 2 | about |
-| 3 | gallery |
-| 4 | amenities |
-| 5 | location |
-| 6 | contact |
-
 ---
 
-## ⚙️ Config Groups Schema
+## ⚙️ Config Groups Schema (V3)
 
-Each site has **8 config groups** stored in `site_configs` as JSON key-value pairs:
+Each site has **8 config groups** stored in `site_configs` as JSON key-value pairs with versioning:
 
-| Group | Key | Fields |
-|-------|-----|--------|
-| Branding | `branding` | logoUrl, faviconUrl, siteName |
-| Theme | `theme` | primaryColor, secondaryColor, backgroundColor, textColor, fontFamily |
-| Contact | `contact` | phone, email, address, workingHours |
-| Project | `project` | defaultView, itemsPerPage, showPrice, showArea, showStatus, priceUnit |
-| Lead | `lead` | formTitle, formSubtitle, requiredFields, enableHoneypot, rateLimit, notifyEmail |
-| Features | `features` | chatbot, aiAnalysis, booking, gallery, propertyFilter, leadForm, map |
-| Layout | `layout` | homepage (string[]) |
-| SEO | `seo` | metaTitle, metaDescription, ogImage, keywords |
+| Group | Key | Version | Fields |
+|-------|-----|---------|--------|
+| Branding | `branding` | v1 | logoUrl, faviconUrl, siteName |
+| Theme | `theme` | **v3** | primaryColor, secondaryColor, backgroundColor, textColor, fontFamily, **presetId, accentColor, borderColor, mutedColor, borderRadius** |
+| Contact | `contact` | v1 | phone, email, address, workingHours |
+| Project | `project` | v1 | defaultView, itemsPerPage, showPrice, showArea, showStatus, priceUnit |
+| Lead | `lead` | **v2** | formTitle, formSubtitle, requiredFields, enableHoneypot, rateLimit, notifyEmail, **saveToDatabase, autoAssign, webhookUrl, successMessage** |
+| Features | `features` | v1 | chatbot, aiAnalysis, booking, gallery, propertyFilter, leadForm, map |
+| Layout | `layout` | v1 | homepage (string[]) |
+| SEO | `seo` | **v2** | metaTitle, metaDescription, ogImage, keywords, **canonicalUrl, robots, schemaJson** |
+
+> **Bold** = V3 additions
 
 ---
 
 ## 🔌 API Endpoints
 
+### Public
+
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
-| GET | `/api/sites/by-domain.php?site_key=riverside` | Public — full merged config |
-| GET | `/api/admin/config.php?site_id=1` | Admin — all config groups |
-| GET | `/api/admin/config.php?site_id=1&key=theme` | Admin — single group |
-| PUT | `/api/admin/config.php` | Admin — batch update |
-| POST | `/api/ai/extract-colors.php` | AI — image color extraction |
+| GET | `/api/sites/by-key.php?site_key=riverside` | **Recommended** — lookup by site_key |
+| GET | `/api/sites/by-domain.php?domain=riverside.batdongsanuytin.com` | Lookup by domain |
+| GET | `/api/sites/by-domain.php?site_key=riverside` | ⚠️ **DEPRECATED** — use `by-key.php` |
+
+### Admin
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/admin/sites.php` | List all sites |
+| POST | `/api/admin/sites.php` | Create site |
+| PUT | `/api/admin/sites.php` | Update site |
+| DELETE | `/api/admin/sites.php?id=1` | Delete site |
+| GET | `/api/admin/config.php?site_id=1` | Get all config groups |
+| GET | `/api/admin/config.php?site_id=1&key=theme` | Get single group |
+| PUT | `/api/admin/config.php` | Batch update configs |
+
+### AI
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/api/ai/extract-colors.php` | Extract palette from uploaded image |
+
+### Public API Response Structure
+
+```json
+{
+  "success": true,
+  "data": {
+    "site": {
+      "id": 1,
+      "siteKey": "riverside",
+      "name": "Dự Án Riverside",
+      "domain": "riverside.batdongsanuytin.com",
+      "isActive": true
+    },
+    "branding": { "logoUrl": "...", "faviconUrl": "...", "siteName": "..." },
+    "theme": { "primaryColor": "...", "accentColor": "...", "borderRadius": "..." },
+    "contact": { "phone": "...", "email": "...", "address": "...", "workingHours": "..." },
+    "features": { "chatbot": true, "gallery": true, "..." : "..." },
+    "layout": { "homepage": ["hero", "about", "..."] },
+    "seo": { "metaTitle": "...", "robots": "index,follow", "canonicalUrl": "..." },
+    "lead": { "formTitle": "...", "requiredFields": ["name","phone"], "successMessage": "..." },
+    "project": { "defaultView": "grid", "showPrice": true, "..." : "..." },
+    "meta": {
+      "configVersion": 3,
+      "loadedAt": "2026-04-24T23:11:30+03:00"
+    },
+    "project_data": { "id": 1, "name": "...", "status": "selling" },
+    "sections": { "hero": {}, "about": {}, "..." : {} }
+  }
+}
+```
+
+---
+
+## 🎨 CSS Variable Mapping
+
+Theme config values are mapped to CSS custom properties by `SiteService.applyTheme()`:
+
+| Config Key | CSS Variable | Usage |
+|------------|-------------|-------|
+| `primaryColor` | `--color-primary` | Buttons, links, highlights |
+| `secondaryColor` | `--color-secondary` | Secondary buttons, accents |
+| `backgroundColor` | `--bg-primary` | Page background |
+| `textColor` | `--text-primary` | Body text |
+| `accentColor` | `--color-accent` | Badges, tags, hover states |
+| `borderColor` | `--border-color` | Card borders, dividers |
+| `mutedColor` | `--color-muted` | Placeholders, disabled text |
+| `borderRadius` | `--border-radius` | Cards, buttons, inputs |
+| `fontFamily` | `font-family` | Global typography |
+
+---
+
+## 🛡️ Validation Rules
+
+### Theme
+- Colors (`primaryColor`, `secondaryColor`, `backgroundColor`, `textColor`, `accentColor`): valid HEX (`#RRGGBB`)
+- `borderColor`: HEX or `rgba(...)` allowed
+- `borderRadius`: optional, CSS value (e.g., `12px`, `0.5rem`)
+
+### Lead
+- `rateLimit`: positive integer (1–100)
+- `requiredFields`: must be array
+- `notifyEmail`: valid email if present
+- `webhookUrl`: valid URL if present
+
+### SEO
+- `metaTitle`: ⚠️ warning if > 70 chars
+- `metaDescription`: ⚠️ warning if > 160 chars
+- `robots`: one of `index,follow` | `noindex,follow` | `index,nofollow` | `noindex,nofollow`
+
+### Site
+- `site_key`: unique, lowercase `a-z0-9-` only
+- `domain`: unique
+- `name`: required
 
 ---
 
@@ -330,28 +438,30 @@ Each site has **8 config groups** stored in `site_configs` as JSON key-value pai
 ### sites
 ```sql
 CREATE TABLE sites (
-  id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  site_key      VARCHAR(50) UNIQUE NOT NULL,
-  name          VARCHAR(200) NOT NULL,
-  domain        VARCHAR(200),
-  logo_url      VARCHAR(500),
-  primary_color VARCHAR(7),
-  secondary_color VARCHAR(7),
-  phone         VARCHAR(30),
-  email         VARCHAR(200),
-  is_active     TINYINT(1) DEFAULT 1,
-  created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  site_key        VARCHAR(50) UNIQUE NOT NULL,
+  name            VARCHAR(200) NOT NULL,
+  domain          VARCHAR(200),
+  -- LEGACY columns (fallback only, source of truth is site_configs)
+  logo_url        VARCHAR(500),       -- TODO: drop after migration
+  primary_color   VARCHAR(7),         -- TODO: drop after migration
+  secondary_color VARCHAR(7),         -- TODO: drop after migration
+  phone           VARCHAR(30),        -- TODO: drop after migration
+  email           VARCHAR(200),       -- TODO: drop after migration
+  is_active       TINYINT(1) DEFAULT 1,
+  created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-### site_configs
+### site_configs (V3)
 ```sql
 CREATE TABLE site_configs (
-  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  site_id      INT UNSIGNED NOT NULL,
-  config_key   VARCHAR(50) NOT NULL,
-  config_value JSON NOT NULL,
-  updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  id             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  site_id        INT UNSIGNED NOT NULL,
+  config_key     VARCHAR(50) NOT NULL,
+  config_value   JSON NOT NULL,
+  config_version INT UNSIGNED NOT NULL DEFAULT 1,  -- V3: auto-increments on save
+  updated_at     DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY (site_id, config_key),
   FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
 );
@@ -398,10 +508,75 @@ CREATE TABLE properties (
 
 ---
 
-## ⚠️ Known Issues
+## 📁 File Structure
 
-1. **Domain mismatch:** Site #1 domain in DB is `reverside.batdongsanuytin.com` but site_key is `riverside` — should update domain to `riverside.batdongsanuytin.com`
-2. **Email mismatch:** Contact email `info@reverside.vn` should be `info@riverside.vn`
-3. **Logo path:** Still using old `/uploads/duana/` path — should migrate to `/uploads/riverside/`
-4. **Property images:** Table exists but has 0 records
-5. **Leads:** No leads captured yet
+```
+bds/
+├── api/
+│   ├── sites/
+│   │   ├── by-key.php          ← NEW (V3) — recommended public API
+│   │   └── by-domain.php       ← Updated — supports ?domain= and ?site_key= (deprecated)
+│   ├── admin/
+│   │   ├── sites.php
+│   │   └── config.php
+│   └── ai/
+│       └── extract-colors.php
+├── core/
+│   ├── services/
+│   │   ├── SiteService.php     ← V2 response builder with fallback
+│   │   └── SiteConfigService.php  ← V3 — extended DEFAULTS, validation, versioning
+│   └── config/
+│       └── db.php
+├── database/
+│   ├── seed.sql
+│   ├── migration_v2_site_configs.sql
+│   └── migration_v3_config_cleanup.sql  ← NEW — data fixes + schema extensions
+├── frontend/src/app/
+│   ├── core/
+│   │   ├── models/interfaces.ts  ← V3 interfaces (ThemeConfig, SeoConfig, LeadConfig, ConfigMeta)
+│   │   ├── services/
+│   │   │   ├── site.service.ts   ← V3 CSS vars + canonical + robots
+│   │   │   ├── admin.service.ts
+│   │   │   └── ai-theme.service.ts
+│   │   └── constants/
+│   │       └── theme-presets.ts  ← 12 predefined presets
+│   └── features/
+│       ├── admin/pages/
+│       │   ├── sites.component.ts   ← V3 form controls
+│       │   ├── sites.component.html ← V3 UI fields
+│       │   └── sites.component.css
+│       └── landing/components/
+│           └── landing.component.ts
+└── docs/
+    └── sites-config-spec.md  ← This file
+```
+
+---
+
+## ✅ V3 Migration Changelog
+
+| Before (V1/V2) | After (V3) | Task |
+|-----------------|------------|------|
+| Domain: `reverside.batdongsanuytin.com` | `riverside.batdongsanuytin.com` ✅ | T1 |
+| Email: `info@reverside.vn` | `info@riverside.vn` ✅ | T1 |
+| Logo: `/uploads/duana/logo.png` | `/uploads/riverside/logo.png` ✅ | T1 |
+| Dual source: sites + site_configs | site_configs = source of truth ✅ | T2 |
+| API: `by-domain.php?site_key=` only | + `by-key.php` + `?domain=` ✅ | T3 |
+| Layout: ambiguous (config vs sections) | Config primary, sections fallback ✅ | T4 |
+| Theme: 5 fields | 10 fields (+ semantic tokens) ✅ | T5 |
+| SEO: 4 fields | 7 fields (+ canonical, robots, schema) ✅ | T6 |
+| Lead: 6 fields | 10 fields (+ webhook, success msg) ✅ | T7 |
+| No versioning | `config_version` column + `meta` in API ✅ | T8 |
+| Admin: basic fields | + V3 fields in theme/SEO/lead tabs ✅ | T9 |
+| No validation | PHP + Angular validation ✅ | T10 |
+
+---
+
+## ⚠️ Remaining TODOs
+
+1. **Drop legacy columns** from `sites` after confirming all code paths use `site_configs`
+2. **Remove `site_sections` fallback** after full layout migration
+3. **Property images**: table exists but 0 records — need upload UI
+4. **Leads**: no leads captured yet — test lead form submission
+5. **Schema JSON**: SEO `schemaJson` field ready but no UI for editing
+6. **Auto-assign**: Lead `autoAssign` field ready but no CRM integration
