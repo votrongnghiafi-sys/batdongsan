@@ -38,7 +38,7 @@
       <form class="a-form" [formGroup]="generalForm">
         <div class="a-fg">
           <label class="a-lbl">Site Key (subdomain) <span class="req">*</span></label>
-          <input class="a-input" formControlName="site_key" placeholder="reverside" [class.a-input--err]="hasError(generalForm, 'site_key')">
+          <input class="a-input" formControlName="site_key" placeholder="riverside" [class.a-input--err]="hasError(generalForm, 'site_key')">
           @if (hasError(generalForm, 'site_key')) {
             <span class="a-err">Chỉ chứa a-z, 0-9, dấu gạch ngang</span>
           }
@@ -533,8 +533,9 @@
             </span>
           </td>
           <td>
-            <button class="a-btn a-btn--ghost a-btn--sm" (click)="edit(s)">✏️</button>
-            <button class="a-btn a-btn--danger a-btn--sm" (click)="remove(s)">🗑️</button>
+            <a class="a-btn a-btn--ghost a-btn--sm" [href]="'/?site_key=' + s.site_key" target="_blank" title="Xem Landing Page">👁️</a>
+            <button class="a-btn a-btn--ghost a-btn--sm" (click)="edit(s)" title="Chỉnh sửa">✏️</button>
+            <button class="a-btn a-btn--danger a-btn--sm" (click)="remove(s)" title="Xóa">🗑️</button>
           </td>
         </tr>
       }

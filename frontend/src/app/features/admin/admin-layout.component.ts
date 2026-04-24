@@ -30,7 +30,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
           </a>
         </nav>
         <div class="adm__foot">
-          <a href="/?site_key=reverside" target="_blank" class="adm__link"><span>🔗</span><span>Xem Landing Page</span></a>
+          <a href="/?site_key=riverside" target="_blank" class="adm__link"><span>🔗</span><span>Xem Landing Page</span></a>
         </div>
       </aside>
 
