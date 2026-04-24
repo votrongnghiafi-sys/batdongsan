@@ -304,8 +304,12 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
             this.msg = this.editId ? 'Đã cập nhật thành công!' : 'Đã tạo site mới!';
             this.msgType = 'ok';
             this.saving = false;
-            this.cancelEdit();
+            // Keep form open — set editId for newly created sites
+            if (!this.editId) {
+              this.editId = siteId;
+            }
             this.loadSites();
+            this.cdr.detectChanges();
           },
           error: () => {
             // Site saved but config failed — partial success
