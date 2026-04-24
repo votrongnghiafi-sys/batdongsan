@@ -1,8 +1,8 @@
-# BDS Multi-Site — Full Site Configuration Spec (V3)
+# BDS Multi-Site — Full Site Configuration Spec (V4)
 
-> Updated: 2026-04-24T23:18:00+03:00
+> Updated: 2026-04-25T00:36:00+03:00
 > Database: `bds_multisite`
-> Config Version: V3 (SaaS-ready)
+> Config Version: V4 (Page Builder foundation)
 
 ---
 
@@ -11,7 +11,7 @@
 | Table | Records | Purpose |
 |-------|---------|---------|
 | `sites` | 2 | Core site identity (key, domain, is_active) |
-| `site_configs` | 16 | Source of truth — 8 JSON config groups × 2 sites |
+| `site_configs` | 18 | Source of truth — 9 JSON config groups × 2 sites |
 | `projects` | 2 | Dự án bất động sản |
 | `properties` | 11 | Bất động sản (6 + 5) |
 | `property_images` | 0 | Ảnh BĐS |
@@ -145,6 +145,36 @@ DEFAULTS        ← hardcoded in SiteConfigService.php
 ```
 
 > **Fallback chain:** `site_configs.layout.homepage` → `site_sections ORDER BY sort_order` → hardcoded default
+
+### Sections Config (v4 — Page Builder)
+
+```json
+{
+  "hero": {
+    "enabled": true,
+    "title": "Dự án Riverside Villa",
+    "subtitle": "Nơi cuộc sống thượng lưu bắt đầu",
+    "backgroundImage": "/uploads/riverside/hero.jpg",
+    "ctaText": "Đăng ký tư vấn",
+    "ctaLink": "#section-contact"
+  },
+  "about": {
+    "enabled": true,
+    "title": "Về dự án",
+    "description": "Khu biệt thự ven sông cao cấp tại Quận 2, TP.HCM."
+  },
+  "property-list": {
+    "enabled": true,
+    "limit": 6,
+    "sort": "price_desc",
+    "showFeaturedOnly": false
+  },
+  "amenities": { "enabled": true },
+  "gallery": { "enabled": true, "layout": "grid" },
+  "location": { "enabled": true },
+  "lead-form": { "enabled": true }
+}
+```
 
 ### SEO (v2 → v3)
 
@@ -284,6 +314,36 @@ DEFAULTS        ← hardcoded in SiteConfigService.php
 }
 ```
 
+### Sections Config (v4 — Page Builder)
+
+```json
+{
+  "hero": {
+    "enabled": true,
+    "title": "Sunrise City Apartments",
+    "subtitle": "Căn hộ cao cấp trung tâm Quận 7",
+    "backgroundImage": "/uploads/sunrise/hero.jpg",
+    "ctaText": "Xem bảng giá",
+    "ctaLink": "#section-contact"
+  },
+  "about": {
+    "enabled": true,
+    "title": "Về dự án",
+    "description": "Căn hộ cao cấp tại trung tâm Quận 7."
+  },
+  "property-list": {
+    "enabled": true,
+    "limit": 6,
+    "sort": "price_asc",
+    "showFeaturedOnly": false
+  },
+  "amenities": { "enabled": true },
+  "gallery": { "enabled": true, "layout": "grid" },
+  "location": { "enabled": true },
+  "lead-form": { "enabled": true }
+}
+```
+
 ### SEO (v2 → v3)
 
 ```json
@@ -310,9 +370,9 @@ DEFAULTS        ← hardcoded in SiteConfigService.php
 
 ---
 
-## ⚙️ Config Groups Schema (V3)
+## ⚙️ Config Groups Schema (V4)
 
-Each site has **8 config groups** stored in `site_configs` as JSON key-value pairs with versioning:
+Each site has **9 config groups** stored in `site_configs` as JSON key-value pairs with versioning:
 
 | Group | Key | Version | Fields |
 |-------|-----|---------|--------|
@@ -323,9 +383,20 @@ Each site has **8 config groups** stored in `site_configs` as JSON key-value pai
 | Lead | `lead` | **v2** | formTitle, formSubtitle, requiredFields, enableHoneypot, rateLimit, notifyEmail, **saveToDatabase, autoAssign, webhookUrl, successMessage** |
 | Features | `features` | v1 | chatbot, aiAnalysis, booking, gallery, propertyFilter, leadForm, map |
 | Layout | `layout` | v1 | homepage (string[]) |
+| **Sections** | `sections` | **v4** | **Per-section config: enabled, title, subtitle, backgroundImage, ctaText, ctaLink, limit, sort, showFeaturedOnly, layout** |
 | SEO | `seo` | **v2** | metaTitle, metaDescription, ogImage, keywords, **canonicalUrl, robots, schemaJson** |
 
-> **Bold** = V3 additions
+> **Bold** = V3/V4 additions
+
+### V4 Section Merge Logic
+
+```
+layout.homepage         ← ordering (which sections, in which order)
+sections config         ← per-section settings (content + visibility)
+DEFAULT_SECTIONS        ← fallback for missing configs
+features toggle         ← override: if feature=false, section.enabled=false
+→ API: sections_config   ← merged result for rendering
+```
 
 ---
 
@@ -378,15 +449,24 @@ Each site has **8 config groups** stored in `site_configs` as JSON key-value pai
     "seo": { "metaTitle": "...", "robots": "index,follow", "canonicalUrl": "..." },
     "lead": { "formTitle": "...", "requiredFields": ["name","phone"], "successMessage": "..." },
     "project": { "defaultView": "grid", "showPrice": true, "..." : "..." },
+    "sections_config": {
+      "hero": { "enabled": true, "title": "...", "backgroundImage": "..." },
+      "property-list": { "enabled": true, "limit": 6, "sort": "price_desc" },
+      "gallery": { "enabled": true, "layout": "grid" },
+      "...": { "enabled": true }
+    },
     "meta": {
       "configVersion": 3,
-      "loadedAt": "2026-04-24T23:11:30+03:00"
+      "loadedAt": "2026-04-25T00:36:00+03:00"
     },
     "project_data": { "id": 1, "name": "...", "status": "selling" },
     "sections": { "hero": {}, "about": {}, "..." : {} }
   }
 }
 ```
+
+> **V4 addition**: `sections_config` — merged section configs with defaults + feature toggles applied.
+> `sections` (V1) still present for backward compatibility.
 
 ---
 
@@ -430,6 +510,13 @@ Theme config values are mapped to CSS custom properties by `SiteService.applyThe
 - `site_key`: unique, lowercase `a-z0-9-` only
 - `domain`: unique
 - `name`: required
+
+### Sections (V4)
+- `enabled`: must be boolean
+- `limit`: must be positive integer
+- `sort`: one of `price_desc`, `price_asc`, `newest`
+- `layout` (gallery): one of `grid`, `masonry`, `carousel`
+- Unknown section keys: silently ignored
 
 ---
 
@@ -514,8 +601,8 @@ CREATE TABLE properties (
 bds/
 ├── api/
 │   ├── sites/
-│   │   ├── by-key.php          ← NEW (V3) — recommended public API
-│   │   └── by-domain.php       ← Updated — supports ?domain= and ?site_key= (deprecated)
+│   │   ├── by-key.php
+│   │   └── by-domain.php
 │   ├── admin/
 │   │   ├── sites.php
 │   │   └── config.php
@@ -523,35 +610,50 @@ bds/
 │       └── extract-colors.php
 ├── core/
 │   ├── services/
-│   │   ├── SiteService.php     ← V2 response builder with fallback
-│   │   └── SiteConfigService.php  ← V3 — extended DEFAULTS, validation, versioning
+│   │   ├── SiteService.php
+│   │   └── SiteConfigService.php  ← V4: DEFAULT_SECTIONS, getMergedSections(), validateSections()
 │   └── config/
 │       └── db.php
 ├── database/
 │   ├── seed.sql
 │   ├── migration_v2_site_configs.sql
-│   └── migration_v3_config_cleanup.sql  ← NEW — data fixes + schema extensions
+│   ├── migration_v3_config_cleanup.sql
+│   └── migration_v4_sections_config.sql  ← NEW: page builder seed data
 ├── frontend/src/app/
 │   ├── core/
-│   │   ├── models/interfaces.ts  ← V3 interfaces (ThemeConfig, SeoConfig, LeadConfig, ConfigMeta)
+│   │   ├── models/interfaces.ts  ← V4: SectionConfig, SectionsConfigMap
 │   │   ├── services/
-│   │   │   ├── site.service.ts   ← V3 CSS vars + canonical + robots
+│   │   │   ├── site.service.ts
 │   │   │   ├── admin.service.ts
 │   │   │   └── ai-theme.service.ts
 │   │   └── constants/
-│   │       └── theme-presets.ts  ← 12 predefined presets
+│   │       └── theme-presets.ts
 │   └── features/
 │       ├── admin/pages/
-│       │   ├── sites.component.ts   ← V3 form controls
-│       │   ├── sites.component.html ← V3 UI fields
-│       │   └── sites.component.css
+│       │   ├── sites.component.ts   ← V4: sectionsData, Sections tab
+│       │   ├── sites.component.html ← V4: expandable section editors
+│       │   └── sites.component.css  ← V4: cfg-section-card styles
 │       └── landing/components/
-│           └── landing.component.ts
+│           └── landing.component.ts ← V4: isSectionEnabled(), getSectionConfig()
 └── docs/
     └── sites-config-spec.md  ← This file
 ```
 
 ---
+
+## ✅ V4 Migration Changelog
+
+| Before (V3) | After (V4) | Task |
+|-------------|------------|------|
+| 8 config groups | **9** config groups (+ `sections`) ✅ | T1 |
+| No section-level config | Per-section enabled/title/settings ✅ | T1,T3 |
+| PHP: no section merge | `getMergedSections()` + `DEFAULT_SECTIONS` ✅ | T2,T3 |
+| Angular: hardcoded section checks | `isSectionEnabled()` + `getSectionConfig()` ✅ | T4 |
+| Admin: 9 tabs | **10 tabs** (+ Sections with expandable editors) ✅ | T5 |
+| API: no sections_config | `sections_config` in response ✅ | T6 |
+| Feature toggle + section: separate | Unified: features → section.enabled ✅ | T7 |
+| No section validation | `validateSections()` in PHP ✅ | T8 |
+| Layout only ordering | Layout ordering + section config = **page builder** ✅ | T9 |
 
 ## ✅ V3 Migration Changelog
 
@@ -580,3 +682,6 @@ bds/
 4. **Leads**: no leads captured yet — test lead form submission
 5. **Schema JSON**: SEO `schemaJson` field ready but no UI for editing
 6. **Auto-assign**: Lead `autoAssign` field ready but no CRM integration
+7. **Drag & drop**: Layout reorder UI ready (moveSection) but no DnD library yet
+8. **Section templates**: `DEFAULT_SECTIONS` structure ready for reusable templates
+9. **Section components @Input**: Components currently use SiteService injection; future: pass config as `@Input()` props
