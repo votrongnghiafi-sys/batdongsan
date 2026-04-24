@@ -1,6 +1,10 @@
 /**
- * Interfaces for the BDS multi-site system
+ * Interfaces for the BDS multi-site system — V2 SaaS Architecture
  */
+
+// ---------------------------------------------------------------
+// Core Entities
+// ---------------------------------------------------------------
 
 export interface Site {
   id: number;
@@ -12,6 +16,7 @@ export interface Site {
   secondary_color: string;
   phone: string | null;
   email: string | null;
+  is_active?: boolean;
 }
 
 export interface Project {
@@ -47,6 +52,75 @@ export interface PropertyImage {
   url: string;
   altText: string | null;
 }
+
+// ---------------------------------------------------------------
+// Config Groups (V2 SaaS)
+// ---------------------------------------------------------------
+
+export interface BrandingConfig {
+  logoUrl: string;
+  faviconUrl: string;
+  siteName: string;
+}
+
+export interface ThemeConfig {
+  primaryColor: string;
+  secondaryColor: string;
+  backgroundColor: string;
+  textColor: string;
+  fontFamily: string;
+}
+
+export interface ContactConfig {
+  phone: string;
+  email: string;
+  address: string;
+  workingHours: string;
+}
+
+export interface FeaturesConfig {
+  chatbot: boolean;
+  aiAnalysis: boolean;
+  booking: boolean;
+  gallery: boolean;
+  propertyFilter: boolean;
+  leadForm: boolean;
+  map: boolean;
+  [key: string]: boolean; // allow dynamic flags
+}
+
+export interface LayoutConfig {
+  homepage: string[];
+}
+
+export interface SeoConfig {
+  metaTitle: string;
+  metaDescription: string;
+  ogImage: string;
+  keywords: string;
+}
+
+export interface LeadConfig {
+  formTitle: string;
+  formSubtitle: string;
+  requiredFields: string[];
+  enableHoneypot?: boolean;
+  rateLimit?: number;
+  notifyEmail?: string;
+}
+
+export interface ProjectConfig {
+  defaultView: 'grid' | 'list';
+  itemsPerPage: number;
+  showPrice: boolean;
+  showArea: boolean;
+  showStatus: boolean;
+  priceUnit: string;
+}
+
+// ---------------------------------------------------------------
+// Section Content Types
+// ---------------------------------------------------------------
 
 export interface HeroContent {
   title: string;
@@ -108,11 +182,43 @@ export interface SiteSections {
   contact?: ContactContent;
 }
 
+// ---------------------------------------------------------------
+// Full Site Config (V2 — backward compatible)
+// ---------------------------------------------------------------
+
 export interface SiteConfig {
+  // V1 fields (backward compat)
   site: Site;
   project: Project;
   sections: SiteSections;
+
+  // V2 config groups
+  branding?: BrandingConfig;
+  theme?: ThemeConfig;
+  contact?: ContactConfig;
+  features?: FeaturesConfig;
+  layout?: LayoutConfig;
+  seo?: SeoConfig;
+  lead?: LeadConfig;
 }
+
+/**
+ * Admin-only: full config map used for editing.
+ */
+export interface SiteConfigMap {
+  branding: BrandingConfig;
+  theme: ThemeConfig;
+  contact: ContactConfig;
+  features: FeaturesConfig;
+  layout: LayoutConfig;
+  seo: SeoConfig;
+  lead: LeadConfig;
+  project: ProjectConfig;
+}
+
+// ---------------------------------------------------------------
+// API types
+// ---------------------------------------------------------------
 
 export interface PaginatedResponse<T> {
   items: T[];

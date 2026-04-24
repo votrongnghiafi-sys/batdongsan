@@ -6,8 +6,20 @@ class SiteService {
     public function __construct(PDO $db) { $this->db = $db; }
 
     public function getSiteByKey(string $siteKey): ?array {
-        $stmt = $this->db->prepare('SELECT id, site_key, name, domain, logo_url, primary_color, secondary_color, phone, email FROM sites WHERE site_key = :key AND is_active = 1 LIMIT 1');
+        $stmt = $this->db->prepare('SELECT id, site_key, name, domain, logo_url, primary_color, secondary_color, phone, email, is_active FROM sites WHERE site_key = :key AND is_active = 1 LIMIT 1');
         $stmt->execute([':key' => $siteKey]);
+        return $stmt->fetch() ?: null;
+    }
+
+    public function getSiteByDomain(string $domain): ?array {
+        $stmt = $this->db->prepare('SELECT id, site_key, name, domain, logo_url, primary_color, secondary_color, phone, email, is_active FROM sites WHERE domain = :domain AND is_active = 1 LIMIT 1');
+        $stmt->execute([':domain' => $domain]);
+        return $stmt->fetch() ?: null;
+    }
+
+    public function getSiteById(int $id): ?array {
+        $stmt = $this->db->prepare('SELECT * FROM sites WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $id]);
         return $stmt->fetch() ?: null;
     }
 
@@ -27,6 +39,10 @@ class SiteService {
         return $sections;
     }
 
+    /**
+     * V1 API response — backward compatible with existing frontend.
+     * Returns { site, project, sections }
+     */
     public function getFullSiteConfig(string $siteKey): ?array {
         $site = $this->getSiteByKey($siteKey);
         if (!$site) return null;
@@ -35,5 +51,49 @@ class SiteService {
             'project'  => $this->getProjectBySiteId($site['id']),
             'sections' => $this->getSections($site['id']),
         ];
+    }
+
+    /**
+     * V2 API response — new SaaS config structure.
+     * Returns { site, project, sections, branding, theme, contact, features, layout, seo, lead }
+     */
+    public function getFullSiteConfigV2(string $siteKeyOrDomain, bool $isDomain = false): ?array {
+        $site = $isDomain
+            ? $this->getSiteByDomain($siteKeyOrDomain)
+            : $this->getSiteByKey($siteKeyOrDomain);
+
+        if (!$site) return null;
+
+        require_once __DIR__ . '/SiteConfigService.php';
+        $configService = new SiteConfigService($this->db);
+        $configs = $configService->getPublicConfig($site['id']);
+
+        return array_merge(
+            [
+                'site'     => $site,
+                'project'  => $this->getProjectBySiteId($site['id']),
+                'sections' => $this->getSections($site['id']),
+            ],
+            $configs
+        );
+    }
+
+    /**
+     * Validate uniqueness of site_key.
+     */
+    public function isSiteKeyUnique(string $siteKey, int $excludeId = 0): bool {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM sites WHERE site_key = :key AND id != :id');
+        $stmt->execute([':key' => $siteKey, ':id' => $excludeId]);
+        return (int)$stmt->fetchColumn() === 0;
+    }
+
+    /**
+     * Validate uniqueness of domain.
+     */
+    public function isDomainUnique(string $domain, int $excludeId = 0): bool {
+        if (empty($domain)) return true;
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM sites WHERE domain = :domain AND id != :id');
+        $stmt->execute([':domain' => $domain, ':id' => $excludeId]);
+        return (int)$stmt->fetchColumn() === 0;
     }
 }

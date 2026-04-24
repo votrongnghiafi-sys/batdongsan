@@ -1,0 +1,384 @@
+<!-- Alert -->
+@if (msg) {
+  <div class="a-alert" [class]="msgType === 'ok' ? 'a-alert--ok' : 'a-alert--err'">{{ msg }}</div>
+}
+
+<!-- ============================================================ -->
+<!-- TAB FORM                                                      -->
+<!-- ============================================================ -->
+<div class="a-card">
+  <div class="a-card__head">
+    <span class="a-card__title">{{ editId ? '✏️ Chỉnh sửa Site #' + editId : '➕ Tạo Site mới' }}</span>
+    @if (editId) {
+      <button type="button" class="a-btn a-btn--ghost a-btn--sm" (click)="cancelEdit()">✕ Hủy</button>
+    }
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="cfg-tabs">
+    @for (tab of tabs; track tab.key) {
+      <button
+        class="cfg-tab"
+        [class.cfg-tab--active]="activeTab === tab.key"
+        [class.cfg-tab--disabled]="!editId && tab.key !== 'general'"
+        [disabled]="!editId && tab.key !== 'general'"
+        (click)="setTab(tab.key)"
+      >
+        <span class="cfg-tab__icon">{{ tab.icon }}</span>
+        <span class="cfg-tab__label">{{ tab.label }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- Tab Content -->
+  <div class="cfg-body">
+
+    <!-- ======================= GENERAL ======================= -->
+    @if (activeTab === 'general') {
+      <form class="a-form" [formGroup]="generalForm">
+        <div class="a-fg">
+          <label class="a-lbl">Site Key (subdomain) <span class="req">*</span></label>
+          <input class="a-input" formControlName="site_key" placeholder="duana" [class.a-input--err]="hasError(generalForm, 'site_key')">
+          @if (hasError(generalForm, 'site_key')) {
+            <span class="a-err">Chỉ chứa a-z, 0-9, dấu gạch ngang</span>
+          }
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Tên Site <span class="req">*</span></label>
+          <input class="a-input" formControlName="name" placeholder="Dự Án ABC" [class.a-input--err]="hasError(generalForm, 'name')">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Domain</label>
+          <input class="a-input" formControlName="domain" placeholder="abc.batdongsanuytin.com">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl a-lbl--check">
+            <input type="checkbox" formControlName="is_active"> Kích hoạt
+          </label>
+        </div>
+      </form>
+    }
+
+    <!-- ======================= BRANDING ====================== -->
+    @if (activeTab === 'branding') {
+      <form class="a-form" [formGroup]="brandingForm">
+        <div class="a-fg">
+          <label class="a-lbl">Tên thương hiệu</label>
+          <input class="a-input" formControlName="siteName" placeholder="Dự Án ABC">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Logo URL</label>
+          <input class="a-input" formControlName="logoUrl" placeholder="/uploads/logo.png">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Favicon URL</label>
+          <input class="a-input" formControlName="faviconUrl" placeholder="/uploads/favicon.ico">
+        </div>
+        @if (brandingForm.value.logoUrl) {
+          <div class="cfg-preview-img">
+            <img [src]="brandingForm.value.logoUrl" alt="Logo preview" style="max-height:80px">
+          </div>
+        }
+      </form>
+    }
+
+    <!-- ======================= THEME ========================= -->
+    @if (activeTab === 'theme') {
+      <form class="a-form" [formGroup]="themeForm">
+        <div class="a-form-grid">
+          <div class="a-fg">
+            <label class="a-lbl">Màu chính</label>
+            <input class="a-input a-input--color" formControlName="primaryColor" type="color">
+            <span class="a-hint">{{ themeForm.value.primaryColor }}</span>
+          </div>
+          <div class="a-fg">
+            <label class="a-lbl">Màu phụ</label>
+            <input class="a-input a-input--color" formControlName="secondaryColor" type="color">
+            <span class="a-hint">{{ themeForm.value.secondaryColor }}</span>
+          </div>
+          <div class="a-fg">
+            <label class="a-lbl">Nền</label>
+            <input class="a-input a-input--color" formControlName="backgroundColor" type="color">
+            <span class="a-hint">{{ themeForm.value.backgroundColor }}</span>
+          </div>
+          <div class="a-fg">
+            <label class="a-lbl">Chữ</label>
+            <input class="a-input a-input--color" formControlName="textColor" type="color">
+            <span class="a-hint">{{ themeForm.value.textColor }}</span>
+          </div>
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Font chữ</label>
+          <select class="a-input" formControlName="fontFamily">
+            <option value="Inter">Inter</option>
+            <option value="Roboto">Roboto</option>
+            <option value="Outfit">Outfit</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Poppins">Poppins</option>
+          </select>
+        </div>
+
+        <!-- Live Preview -->
+        <div class="cfg-preview" [style.background]="previewColors.bg" [style.color]="previewColors.text">
+          <div class="cfg-preview__title">Xem trước giao diện</div>
+          <div class="cfg-preview__box">
+            <button class="cfg-preview__btn" [style.background]="previewColors.primary">Nút chính</button>
+            <button class="cfg-preview__btn" [style.background]="previewColors.secondary">Nút phụ</button>
+          </div>
+          <div class="cfg-preview__bar" [style.background]="'linear-gradient(90deg, ' + previewColors.primary + ', ' + previewColors.secondary + ')'"></div>
+        </div>
+      </form>
+    }
+
+    <!-- ======================= CONTACT ======================= -->
+    @if (activeTab === 'contact') {
+      <form class="a-form" [formGroup]="contactForm">
+        <div class="a-fg">
+          <label class="a-lbl">Số điện thoại</label>
+          <input class="a-input" formControlName="phone" placeholder="0909 123 456">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Email</label>
+          <input class="a-input" formControlName="email" type="email" placeholder="info@domain.com" [class.a-input--err]="hasError(contactForm, 'email')">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Địa chỉ</label>
+          <input class="a-input" formControlName="address" placeholder="Quận 2, TP.HCM">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Giờ làm việc</label>
+          <input class="a-input" formControlName="workingHours" placeholder="8:00 - 20:00 (T2 - CN)">
+        </div>
+      </form>
+    }
+
+    <!-- ======================= PROJECT ======================= -->
+    @if (activeTab === 'project') {
+      <form class="a-form" [formGroup]="projectForm">
+        <div class="a-fg">
+          <label class="a-lbl">Dạng hiển thị mặc định</label>
+          <select class="a-input" formControlName="defaultView">
+            <option value="grid">Lưới (Grid)</option>
+            <option value="list">Danh sách (List)</option>
+          </select>
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Số BĐS mỗi trang</label>
+          <input class="a-input" formControlName="itemsPerPage" type="number" min="1" max="50">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Đơn vị giá</label>
+          <select class="a-input" formControlName="priceUnit">
+            <option value="VND">VND</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+          </select>
+        </div>
+        <div class="cfg-toggles">
+          <label class="a-lbl a-lbl--check"><input type="checkbox" formControlName="showPrice"> Hiện giá</label>
+          <label class="a-lbl a-lbl--check"><input type="checkbox" formControlName="showArea"> Hiện diện tích</label>
+          <label class="a-lbl a-lbl--check"><input type="checkbox" formControlName="showStatus"> Hiện tình trạng</label>
+        </div>
+      </form>
+    }
+
+    <!-- ======================= LEAD ==========================  -->
+    @if (activeTab === 'lead') {
+      <form class="a-form" [formGroup]="leadForm">
+        <div class="a-fg">
+          <label class="a-lbl">Tiêu đề form</label>
+          <input class="a-input" formControlName="formTitle">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Phụ đề form</label>
+          <input class="a-input" formControlName="formSubtitle">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Email nhận thông báo</label>
+          <input class="a-input" formControlName="notifyEmail" type="email" placeholder="admin@domain.com">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Giới hạn gửi form / phút</label>
+          <input class="a-input" formControlName="rateLimit" type="number" min="1" max="100">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl a-lbl--check">
+            <input type="checkbox" formControlName="enableHoneypot"> Bật chống spam (honeypot)
+          </label>
+        </div>
+      </form>
+    }
+
+    <!-- ======================= FEATURES ====================== -->
+    @if (activeTab === 'features') {
+      <form class="a-form" [formGroup]="featuresForm">
+        <p class="cfg-desc">Bật/tắt các tính năng cho site này:</p>
+        <div class="cfg-toggles cfg-toggles--grid">
+          <label class="cfg-toggle-card">
+            <input type="checkbox" formControlName="leadForm">
+            <span class="cfg-toggle-card__body">
+              <span class="cfg-toggle-card__icon">📝</span>
+              <span class="cfg-toggle-card__label">Form liên hệ</span>
+            </span>
+          </label>
+          <label class="cfg-toggle-card">
+            <input type="checkbox" formControlName="gallery">
+            <span class="cfg-toggle-card__body">
+              <span class="cfg-toggle-card__icon">🖼️</span>
+              <span class="cfg-toggle-card__label">Thư viện ảnh</span>
+            </span>
+          </label>
+          <label class="cfg-toggle-card">
+            <input type="checkbox" formControlName="propertyFilter">
+            <span class="cfg-toggle-card__body">
+              <span class="cfg-toggle-card__icon">🔎</span>
+              <span class="cfg-toggle-card__label">Bộ lọc BĐS</span>
+            </span>
+          </label>
+          <label class="cfg-toggle-card">
+            <input type="checkbox" formControlName="map">
+            <span class="cfg-toggle-card__body">
+              <span class="cfg-toggle-card__icon">🗺️</span>
+              <span class="cfg-toggle-card__label">Bản đồ</span>
+            </span>
+          </label>
+          <label class="cfg-toggle-card">
+            <input type="checkbox" formControlName="chatbot">
+            <span class="cfg-toggle-card__body">
+              <span class="cfg-toggle-card__icon">🤖</span>
+              <span class="cfg-toggle-card__label">Chatbot</span>
+            </span>
+          </label>
+          <label class="cfg-toggle-card">
+            <input type="checkbox" formControlName="booking">
+            <span class="cfg-toggle-card__body">
+              <span class="cfg-toggle-card__icon">📅</span>
+              <span class="cfg-toggle-card__label">Đặt lịch</span>
+            </span>
+          </label>
+          <label class="cfg-toggle-card">
+            <input type="checkbox" formControlName="aiAnalysis">
+            <span class="cfg-toggle-card__body">
+              <span class="cfg-toggle-card__icon">🧠</span>
+              <span class="cfg-toggle-card__label">AI Analysis</span>
+            </span>
+          </label>
+        </div>
+      </form>
+    }
+
+    <!-- ======================= LAYOUT ======================== -->
+    @if (activeTab === 'layout') {
+      <form class="a-form" [formGroup]="layoutForm">
+        <p class="cfg-desc">Kéo thả để thay đổi thứ tự các section trên trang chủ:</p>
+
+        <div class="cfg-layout-builder">
+          @for (ctrl of homepageSections.controls; track $index; let i = $index) {
+            <div class="cfg-layout-item">
+              <span class="cfg-layout-item__order">{{ i + 1 }}</span>
+              <span class="cfg-layout-item__name">{{ getSectionLabel(ctrl.value) }}</span>
+              <div class="cfg-layout-item__actions">
+                <button type="button" class="a-btn a-btn--ghost a-btn--xs" (click)="moveSection(i, 'up')" [disabled]="i === 0">↑</button>
+                <button type="button" class="a-btn a-btn--ghost a-btn--xs" (click)="moveSection(i, 'down')" [disabled]="i === homepageSections.length - 1">↓</button>
+                <button type="button" class="a-btn a-btn--danger a-btn--xs" (click)="removeSection(i)">✕</button>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (getUnusedSections().length > 0) {
+          <div class="cfg-layout-add">
+            <span class="a-lbl">Thêm section:</span>
+            @for (s of getUnusedSections(); track s.key) {
+              <button type="button" class="a-btn a-btn--ghost a-btn--sm" (click)="addSection(s.key)">+ {{ s.label }}</button>
+            }
+          </div>
+        }
+      </form>
+    }
+
+    <!-- ======================= SEO =========================== -->
+    @if (activeTab === 'seo') {
+      <form class="a-form" [formGroup]="seoForm">
+        <div class="a-fg">
+          <label class="a-lbl">Meta Title</label>
+          <input class="a-input" formControlName="metaTitle" placeholder="Dự Án ABC - Bất động sản cao cấp">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Meta Description <span class="a-hint">({{ seoForm.value.metaDescription?.length || 0 }}/160)</span></label>
+          <textarea class="a-input a-input--textarea" formControlName="metaDescription" rows="3" placeholder="Mô tả ngắn về dự án..."></textarea>
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">OG Image URL</label>
+          <input class="a-input" formControlName="ogImage" placeholder="/uploads/og-image.jpg">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Keywords</label>
+          <input class="a-input" formControlName="keywords" placeholder="bất động sản, dự án, quận 2">
+        </div>
+
+        <!-- SEO Preview -->
+        <div class="cfg-seo-preview">
+          <div class="cfg-seo-preview__title">{{ seoForm.value.metaTitle || generalForm.value.name || 'Tiêu đề trang' }}</div>
+          <div class="cfg-seo-preview__url">{{ generalForm.value.domain || 'domain.com' }}</div>
+          <div class="cfg-seo-preview__desc">{{ seoForm.value.metaDescription || 'Mô tả trang sẽ hiển thị ở đây...' }}</div>
+        </div>
+      </form>
+    }
+
+  </div>
+
+  <!-- Save Button -->
+  <div class="cfg-footer">
+    <button
+      type="button"
+      class="a-btn a-btn--primary a-btn--lg"
+      [disabled]="saving"
+      (click)="save()"
+    >
+      @if (saving) { ⏳ Đang lưu... } @else { 💾 {{ editId ? 'Cập nhật' : 'Tạo Site' }} }
+    </button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SITES LIST                                                    -->
+<!-- ============================================================ -->
+<div class="a-card">
+  <div class="a-card__head">
+    <span class="a-card__title">Danh sách Sites ({{ sites.length }})</span>
+  </div>
+  <table class="a-table">
+    <thead>
+      <tr>
+        <th>ID</th><th>Key</th><th>Tên</th><th>Domain</th><th>Màu</th>
+        <th>Projects</th><th>Leads</th><th>TT</th><th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (s of sites; track s.id) {
+        <tr [class.a-table__row--active]="editId === s.id">
+          <td>{{ s.id }}</td>
+          <td><strong>{{ s.site_key }}</strong></td>
+          <td>{{ s.name }}</td>
+          <td style="font-size:.8rem;opacity:.5">{{ s.domain }}</td>
+          <td>
+            <span class="a-color" [style.background]="s.primary_color"></span>
+            <span class="a-color" [style.background]="s.secondary_color" style="margin-left:4px"></span>
+          </td>
+          <td>{{ s.project_count }}</td>
+          <td>{{ s.lead_count }}</td>
+          <td>
+            <span class="a-badge" [class]="s.is_active ? 'a-badge--ok' : 'a-badge--muted'">
+              {{ s.is_active ? 'On' : 'Off' }}
+            </span>
+          </td>
+          <td>
+            <button class="a-btn a-btn--ghost a-btn--sm" (click)="edit(s)">✏️</button>
+            <button class="a-btn a-btn--danger a-btn--sm" (click)="remove(s)">🗑️</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

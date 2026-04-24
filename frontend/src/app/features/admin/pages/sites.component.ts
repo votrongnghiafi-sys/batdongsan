@@ -1,134 +1,378 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin.service';
+import { SiteConfigMap } from '../../../core/models/interfaces';
+
+type TabKey = 'general' | 'branding' | 'theme' | 'contact' | 'project' | 'lead' | 'features' | 'layout' | 'seo';
+
+interface Tab {
+  key: TabKey;
+  label: string;
+  icon: string;
+}
 
 @Component({
   selector: 'app-admin-sites',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
-    @if (msg) {
-      <div class="a-alert" [class]="msgType === 'ok' ? 'a-alert--ok' : 'a-alert--err'">{{ msg }}</div>
-    }
-
-    <!-- Form -->
-    <div class="a-card">
-      <div class="a-card__head">
-        <span class="a-card__title">{{ editId ? '✏️ Chỉnh sửa Site' : '➕ Tạo Site mới' }}</span>
-      </div>
-      <form class="a-form" (ngSubmit)="save()">
-        <div class="a-fg">
-          <label class="a-lbl">Site Key (subdomain)</label>
-          <input class="a-input" [(ngModel)]="form.site_key" name="site_key" required placeholder="duana" pattern="[a-z0-9\\-]+">
-        </div>
-        <div class="a-fg">
-          <label class="a-lbl">Tên Site</label>
-          <input class="a-input" [(ngModel)]="form.name" name="name" required placeholder="Dự Án Duana Riverside">
-        </div>
-        <div class="a-fg">
-          <label class="a-lbl">Domain</label>
-          <input class="a-input" [(ngModel)]="form.domain" name="domain" placeholder="duana.domain.com">
-        </div>
-        <div class="a-fg">
-          <label class="a-lbl">Logo URL</label>
-          <input class="a-input" [(ngModel)]="form.logo_url" name="logo_url" placeholder="/uploads/logo.png">
-        </div>
-        <div class="a-fg">
-          <label class="a-lbl">SĐT</label>
-          <input class="a-input" [(ngModel)]="form.phone" name="phone" placeholder="0909 123 456">
-        </div>
-        <div class="a-fg">
-          <label class="a-lbl">Email</label>
-          <input class="a-input" [(ngModel)]="form.email" name="email" type="email">
-        </div>
-        <div class="a-fg">
-          <label class="a-lbl">Màu chính</label>
-          <input class="a-input" [(ngModel)]="form.primary_color" name="primary_color" type="color" style="height:40px;padding:4px;">
-        </div>
-        <div class="a-fg">
-          <label class="a-lbl">Màu phụ</label>
-          <input class="a-input" [(ngModel)]="form.secondary_color" name="secondary_color" type="color" style="height:40px;padding:4px;">
-        </div>
-        <div class="a-fg">
-          <label class="a-lbl" style="display:flex;align-items:center;gap:.5rem">
-            <input type="checkbox" [(ngModel)]="form.is_active" name="is_active"> Kích hoạt
-          </label>
-        </div>
-        <div class="a-actions">
-          @if (editId) { <button type="button" class="a-btn a-btn--ghost" (click)="cancelEdit()">Hủy</button> }
-          <button type="submit" class="a-btn a-btn--primary">{{ editId ? 'Cập nhật' : 'Tạo Site' }}</button>
-        </div>
-      </form>
-    </div>
-
-    <!-- List -->
-    <div class="a-card">
-      <div class="a-card__head"><span class="a-card__title">Danh sách Sites ({{ sites.length }})</span></div>
-      <table class="a-table">
-        <thead><tr><th>ID</th><th>Key</th><th>Tên</th><th>Domain</th><th>Màu</th><th>Projects</th><th>Leads</th><th>TT</th><th>Hành động</th></tr></thead>
-        <tbody>
-          @for (s of sites; track s.id) {
-            <tr>
-              <td>{{ s.id }}</td>
-              <td><strong>{{ s.site_key }}</strong></td>
-              <td>{{ s.name }}</td>
-              <td style="font-size:.8rem;opacity:.5">{{ s.domain }}</td>
-              <td><span class="a-color" [style.background]="s.primary_color"></span> <span class="a-color" [style.background]="s.secondary_color" style="margin-left:4px"></span></td>
-              <td>{{ s.project_count }}</td>
-              <td>{{ s.lead_count }}</td>
-              <td><span class="a-badge" [class]="s.is_active ? 'a-badge--ok' : 'a-badge--muted'">{{ s.is_active ? 'On' : 'Off' }}</span></td>
-              <td>
-                <button class="a-btn a-btn--ghost a-btn--sm" (click)="edit(s)">✏️</button>
-                <button class="a-btn a-btn--danger a-btn--sm" (click)="remove(s)">🗑️</button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  `,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './sites.component.html',
+  styleUrl: './sites.component.css',
 })
-export class AdminSitesComponent implements OnInit {
+export class AdminSitesComponent implements OnInit, OnDestroy {
   private admin = inject(AdminService);
+  private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
 
+  // State
   sites: any[] = [];
   editId = 0;
   msg = '';
   msgType = '';
-  form: any = this.emptyForm();
+  activeTab: TabKey = 'general';
+  saving = false;
+  configLoaded = false;
 
-  emptyForm() {
-    return { site_key: '', name: '', domain: '', logo_url: '', phone: '', email: '', primary_color: '#0A84FF', secondary_color: '#30D158', is_active: true };
+  // Preview
+  previewColors = { primary: '#0A84FF', secondary: '#30D158', bg: '#08080f', text: '#f0f0f5' };
+
+  readonly tabs: Tab[] = [
+    { key: 'general',  label: 'Tổng quan',  icon: '⚙️' },
+    { key: 'branding', label: 'Thương hiệu', icon: '🏷️' },
+    { key: 'theme',    label: 'Giao diện',   icon: '🎨' },
+    { key: 'contact',  label: 'Liên hệ',     icon: '📞' },
+    { key: 'project',  label: 'Dự án',       icon: '🏗️' },
+    { key: 'lead',     label: 'Lead',        icon: '📝' },
+    { key: 'features', label: 'Tính năng',   icon: '🔧' },
+    { key: 'layout',   label: 'Bố cục',      icon: '📐' },
+    { key: 'seo',      label: 'SEO',         icon: '🔍' },
+  ];
+
+  // Forms
+  generalForm!: FormGroup;
+  brandingForm!: FormGroup;
+  themeForm!: FormGroup;
+  contactForm!: FormGroup;
+  projectForm!: FormGroup;
+  leadForm!: FormGroup;
+  featuresForm!: FormGroup;
+  layoutForm!: FormGroup;
+  seoForm!: FormGroup;
+
+  // Available sections for layout builder
+  readonly availableSections = [
+    { key: 'hero', label: 'Hero Banner' },
+    { key: 'about', label: 'Giới thiệu' },
+    { key: 'property-list', label: 'Danh sách BĐS' },
+    { key: 'amenities', label: 'Tiện ích' },
+    { key: 'gallery', label: 'Thư viện ảnh' },
+    { key: 'location', label: 'Vị trí' },
+    { key: 'lead-form', label: 'Form liên hệ' },
+  ];
+
+  ngOnInit(): void {
+    this.initForms();
+    this.loadSites();
   }
 
-  ngOnInit() { this.load(); }
+  ngOnDestroy(): void {}
 
-  load() {
-    this.admin.getSites().subscribe(s => { this.sites = s; this.cdr.detectChanges(); });
-  }
+  // ---------------------------------------------------------------
+  // Form Initialization
+  // ---------------------------------------------------------------
+  private initForms(): void {
+    this.generalForm = this.fb.group({
+      site_key: ['', [Validators.required, Validators.pattern(/^[a-z0-9\-]+$/)]],
+      name: ['', Validators.required],
+      domain: [''],
+      is_active: [true],
+    });
 
-  save() {
-    const obs = this.editId
-      ? this.admin.updateSite({ ...this.form, id: this.editId })
-      : this.admin.createSite(this.form);
-    obs.subscribe({
-      next: () => { this.msg = this.editId ? 'Đã cập nhật!' : 'Đã tạo!'; this.msgType = 'ok'; this.cancelEdit(); this.load(); },
-      error: () => { this.msg = 'Lỗi!'; this.msgType = 'err'; this.cdr.detectChanges(); },
+    this.brandingForm = this.fb.group({
+      logoUrl: [''],
+      faviconUrl: [''],
+      siteName: [''],
+    });
+
+    this.themeForm = this.fb.group({
+      primaryColor: ['#0A84FF'],
+      secondaryColor: ['#30D158'],
+      backgroundColor: ['#08080f'],
+      textColor: ['#f0f0f5'],
+      fontFamily: ['Inter'],
+    });
+
+    this.contactForm = this.fb.group({
+      phone: [''],
+      email: ['', Validators.email],
+      address: [''],
+      workingHours: [''],
+    });
+
+    this.projectForm = this.fb.group({
+      defaultView: ['grid'],
+      itemsPerPage: [6, [Validators.min(1), Validators.max(50)]],
+      showPrice: [true],
+      showArea: [true],
+      showStatus: [true],
+      priceUnit: ['VND'],
+    });
+
+    this.leadForm = this.fb.group({
+      formTitle: ['Liên hệ tư vấn'],
+      formSubtitle: ['Để lại thông tin, chuyên viên sẽ liên hệ bạn trong 30 phút'],
+      enableHoneypot: [true],
+      rateLimit: [5, [Validators.min(1), Validators.max(100)]],
+      notifyEmail: ['', Validators.email],
+    });
+
+    this.featuresForm = this.fb.group({
+      chatbot: [false],
+      aiAnalysis: [false],
+      booking: [false],
+      gallery: [true],
+      propertyFilter: [true],
+      leadForm: [true],
+      map: [true],
+    });
+
+    this.layoutForm = this.fb.group({
+      homepage: this.fb.array([]),
+    });
+
+    this.seoForm = this.fb.group({
+      metaTitle: [''],
+      metaDescription: ['', Validators.maxLength(160)],
+      ogImage: [''],
+      keywords: [''],
+    });
+
+    // Live preview for theme tab
+    this.themeForm.valueChanges.subscribe(val => {
+      this.previewColors = {
+        primary: val.primaryColor || '#0A84FF',
+        secondary: val.secondaryColor || '#30D158',
+        bg: val.backgroundColor || '#08080f',
+        text: val.textColor || '#f0f0f5',
+      };
     });
   }
 
-  edit(s: any) {
+  get homepageSections(): FormArray {
+    return this.layoutForm.get('homepage') as FormArray;
+  }
+
+  // ---------------------------------------------------------------
+  // Data Loading
+  // ---------------------------------------------------------------
+  loadSites(): void {
+    this.admin.getSites().subscribe(s => {
+      this.sites = s;
+      this.cdr.detectChanges();
+    });
+  }
+
+  loadConfigs(siteId: number): void {
+    this.admin.getSiteConfigs(siteId).subscribe({
+      next: (configs: SiteConfigMap) => {
+        this.patchConfigs(configs);
+        this.configLoaded = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // Config table might not exist yet — use defaults
+        this.configLoaded = true;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private patchConfigs(configs: SiteConfigMap): void {
+    if (configs.branding) this.brandingForm.patchValue(configs.branding);
+    if (configs.theme) {
+      this.themeForm.patchValue(configs.theme);
+    }
+    if (configs.contact) this.contactForm.patchValue(configs.contact);
+    if (configs.project) this.projectForm.patchValue(configs.project);
+    if (configs.lead) this.leadForm.patchValue(configs.lead);
+    if (configs.features) this.featuresForm.patchValue(configs.features);
+    if (configs.seo) this.seoForm.patchValue(configs.seo);
+
+    // Layout — rebuild FormArray
+    const homepage = configs.layout?.homepage || [];
+    this.homepageSections.clear();
+    homepage.forEach(s => this.homepageSections.push(new FormControl(s)));
+  }
+
+  // ---------------------------------------------------------------
+  // Layout Builder
+  // ---------------------------------------------------------------
+  addSection(sectionKey: string): void {
+    if (!this.homepageSections.value.includes(sectionKey)) {
+      this.homepageSections.push(new FormControl(sectionKey));
+    }
+  }
+
+  removeSection(index: number): void {
+    this.homepageSections.removeAt(index);
+  }
+
+  moveSection(index: number, direction: 'up' | 'down'): void {
+    const arr = this.homepageSections;
+    const target = direction === 'up' ? index - 1 : index + 1;
+    if (target < 0 || target >= arr.length) return;
+
+    const current = arr.at(index).value;
+    const swap = arr.at(target).value;
+    arr.at(index).setValue(swap);
+    arr.at(target).setValue(current);
+  }
+
+  getSectionLabel(key: string): string {
+    return this.availableSections.find(s => s.key === key)?.label || key;
+  }
+
+  getUnusedSections(): { key: string; label: string }[] {
+    const used = new Set(this.homepageSections.value);
+    return this.availableSections.filter(s => !used.has(s.key));
+  }
+
+  // ---------------------------------------------------------------
+  // Save
+  // ---------------------------------------------------------------
+  save(): void {
+    // Validate general tab
+    if (this.generalForm.invalid) {
+      this.activeTab = 'general';
+      this.generalForm.markAllAsTouched();
+      this.msg = 'Vui lòng kiểm tra thông tin bắt buộc ở tab Tổng quan.';
+      this.msgType = 'err';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.saving = true;
+    const general = this.generalForm.value;
+
+    // Step 1: Save site (general tab)
+    const sitePayload = {
+      ...general,
+      primary_color: this.themeForm.value.primaryColor,
+      secondary_color: this.themeForm.value.secondaryColor,
+      phone: this.contactForm.value.phone,
+      email: this.contactForm.value.email,
+      logo_url: this.brandingForm.value.logoUrl,
+    };
+
+    const siteObs = this.editId
+      ? this.admin.updateSite({ ...sitePayload, id: this.editId })
+      : this.admin.createSite(sitePayload);
+
+    siteObs.subscribe({
+      next: (res: any) => {
+        const siteId = this.editId || res.id;
+
+        // Step 2: Save config groups
+        const configs: Partial<SiteConfigMap> = {
+          branding: this.brandingForm.value,
+          theme: this.themeForm.value,
+          contact: this.contactForm.value,
+          project: this.projectForm.value,
+          lead: this.leadForm.value,
+          features: this.featuresForm.value,
+          layout: { homepage: this.homepageSections.value },
+          seo: this.seoForm.value,
+        };
+
+        this.admin.updateSiteConfigs(siteId, configs).subscribe({
+          next: () => {
+            this.msg = this.editId ? 'Đã cập nhật thành công!' : 'Đã tạo site mới!';
+            this.msgType = 'ok';
+            this.saving = false;
+            this.cancelEdit();
+            this.loadSites();
+          },
+          error: () => {
+            // Site saved but config failed — partial success
+            this.msg = 'Site đã lưu, nhưng config chưa cập nhật (có thể cần chạy migration).';
+            this.msgType = 'err';
+            this.saving = false;
+            this.loadSites();
+            this.cdr.detectChanges();
+          },
+        });
+      },
+      error: () => {
+        this.msg = 'Lỗi khi lưu site!';
+        this.msgType = 'err';
+        this.saving = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // Edit / Cancel / Delete
+  // ---------------------------------------------------------------
+  edit(s: any): void {
     this.editId = s.id;
-    this.form = { ...s, is_active: !!s.is_active };
+    this.generalForm.patchValue({
+      site_key: s.site_key,
+      name: s.name,
+      domain: s.domain,
+      is_active: !!s.is_active,
+    });
+
+    // Pre-fill from sites table (V1 fallback)
+    this.themeForm.patchValue({
+      primaryColor: s.primary_color || '#0A84FF',
+      secondaryColor: s.secondary_color || '#30D158',
+    });
+    this.contactForm.patchValue({
+      phone: s.phone || '',
+      email: s.email || '',
+    });
+    this.brandingForm.patchValue({
+      logoUrl: s.logo_url || '',
+      siteName: s.name || '',
+    });
+
+    // Then load full configs (will overwrite with V2 data if available)
+    this.loadConfigs(s.id);
+
+    this.activeTab = 'general';
+    this.msg = '';
     this.cdr.detectChanges();
   }
 
-  cancelEdit() { this.editId = 0; this.form = this.emptyForm(); this.cdr.detectChanges(); }
+  cancelEdit(): void {
+    this.editId = 0;
+    this.configLoaded = false;
+    this.activeTab = 'general';
+    this.initForms();
+    this.cdr.detectChanges();
+  }
 
-  remove(s: any) {
+  remove(s: any): void {
     if (!confirm(`Xóa site "${s.site_key}" và TẤT CẢ dữ liệu?`)) return;
-    this.admin.deleteSite(s.id).subscribe(() => { this.msg = 'Đã xóa!'; this.msgType = 'ok'; this.load(); });
+    this.admin.deleteSite(s.id).subscribe(() => {
+      this.msg = 'Đã xóa!';
+      this.msgType = 'ok';
+      this.loadSites();
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // Tab
+  // ---------------------------------------------------------------
+  setTab(tab: TabKey): void {
+    this.activeTab = tab;
+    this.cdr.detectChanges();
+  }
+
+  // Helpers for template
+  hasError(form: FormGroup, field: string): boolean {
+    const ctrl = form.get(field);
+    return !!ctrl && ctrl.invalid && ctrl.touched;
   }
 }

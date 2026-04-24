@@ -1,0 +1,368 @@
+/* =================================================================
+   Sites Admin — Tabbed Config Form Styles
+   ================================================================= */
+
+/* ---------------------------------------------------------------
+   Tab Navigation
+   --------------------------------------------------------------- */
+.cfg-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 1.5rem;
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.cfg-tabs::-webkit-scrollbar { display: none; }
+
+.cfg-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.25s ease;
+}
+
+.cfg-tab:hover:not(.cfg-tab--disabled) {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.cfg-tab--active {
+  color: var(--color-primary, #0A84FF) !important;
+  border-bottom-color: var(--color-primary, #0A84FF);
+}
+
+.cfg-tab--disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.cfg-tab__icon { font-size: 1rem; }
+.cfg-tab__label { }
+
+/* ---------------------------------------------------------------
+   Tab Body
+   --------------------------------------------------------------- */
+.cfg-body {
+  padding: 1.5rem;
+  min-height: 300px;
+}
+
+.cfg-desc {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ---------------------------------------------------------------
+   Footer (Save button)
+   --------------------------------------------------------------- */
+.cfg-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* ---------------------------------------------------------------
+   Form Grid (color pickers)
+   --------------------------------------------------------------- */
+.a-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+/* ---------------------------------------------------------------
+   Color Input
+   --------------------------------------------------------------- */
+.a-input--color {
+  height: 44px !important;
+  padding: 4px !important;
+  cursor: pointer;
+}
+
+.a-hint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* ---------------------------------------------------------------
+   Required marker
+   --------------------------------------------------------------- */
+.req {
+  color: #ff4d6a;
+  margin-left: 2px;
+}
+
+/* ---------------------------------------------------------------
+   Textarea
+   --------------------------------------------------------------- */
+.a-input--textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+/* ---------------------------------------------------------------
+   Error state
+   --------------------------------------------------------------- */
+.a-input--err {
+  border-color: #ff4d6a !important;
+}
+
+.a-err {
+  color: #ff4d6a;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* ---------------------------------------------------------------
+   Checkbox label
+   --------------------------------------------------------------- */
+.a-lbl--check {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------
+   Theme Preview
+   --------------------------------------------------------------- */
+.cfg-preview {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border-radius: var(--radius-md, 16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.cfg-preview__title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+.cfg-preview__box {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cfg-preview__btn {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 100px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: default;
+}
+
+.cfg-preview__bar {
+  height: 4px;
+  border-radius: 4px;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------
+   SEO Preview (Google SERP mockup)
+   --------------------------------------------------------------- */
+.cfg-seo-preview {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border-radius: 8px;
+  max-width: 600px;
+}
+
+.cfg-seo-preview__title {
+  font-size: 1.1rem;
+  color: #1a0dab;
+  font-weight: 400;
+  line-height: 1.3;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cfg-seo-preview__url {
+  font-size: 0.8rem;
+  color: #006621;
+  margin: 2px 0;
+}
+
+.cfg-seo-preview__desc {
+  font-size: 0.82rem;
+  color: #545454;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------
+   Feature Toggle Cards
+   --------------------------------------------------------------- */
+.cfg-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.cfg-toggles--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.cfg-toggle-card {
+  cursor: pointer;
+}
+
+.cfg-toggle-card input[type="checkbox"] {
+  display: none;
+}
+
+.cfg-toggle-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm, 8px);
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.cfg-toggle-card input:checked + .cfg-toggle-card__body {
+  background: rgba(10, 132, 255, 0.1);
+  border-color: var(--color-primary, #0A84FF);
+}
+
+.cfg-toggle-card:hover .cfg-toggle-card__body {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.cfg-toggle-card__icon {
+  font-size: 1.5rem;
+}
+
+.cfg-toggle-card__label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------
+   Layout Builder
+   --------------------------------------------------------------- */
+.cfg-layout-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 1rem;
+}
+
+.cfg-layout-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm, 8px);
+  transition: background 0.2s;
+}
+
+.cfg-layout-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cfg-layout-item__order {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary, #0A84FF);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cfg-layout-item__name {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.cfg-layout-item__actions {
+  display: flex;
+  gap: 4px;
+}
+
+.cfg-layout-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+/* ---------------------------------------------------------------
+   Active row in table
+   --------------------------------------------------------------- */
+.a-table__row--active {
+  background: rgba(10, 132, 255, 0.08) !important;
+}
+
+/* ---------------------------------------------------------------
+   Extra button sizes
+   --------------------------------------------------------------- */
+.a-btn--xs {
+  padding: 0.2rem 0.5rem !important;
+  font-size: 0.75rem !important;
+}
+
+.a-btn--lg {
+  padding: 0.75rem 2rem !important;
+  font-size: 1rem !important;
+}
+
+/* ---------------------------------------------------------------
+   Preview Image
+   --------------------------------------------------------------- */
+.cfg-preview-img {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm, 8px);
+  display: inline-block;
+}
+
+.cfg-preview-img img {
+  border-radius: 4px;
+}
