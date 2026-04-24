@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin.service';
 import { AiThemeService, AiPalette } from '../../../core/services/ai-theme.service';
+import { THEME_PRESETS, ThemePreset } from '../../../core/constants/theme-presets';
 import { SiteConfigMap } from '../../../core/models/interfaces';
 
 type TabKey = 'general' | 'branding' | 'theme' | 'contact' | 'project' | 'lead' | 'features' | 'layout' | 'seo';
@@ -34,6 +35,10 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   activeTab: TabKey = 'general';
   saving = false;
   configLoaded = false;
+
+  // Theme Presets
+  readonly presets = THEME_PRESETS;
+  selectedPreset: ThemePreset | null = null;
 
   // AI Palette Generator state
   aiMode: 'hex' | 'logo' = 'hex';
@@ -484,5 +489,34 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
       this.generateFromHex();
     }
     // For logo mode, user re-selects file
+  }
+
+  // ---------------------------------------------------------------
+  // Theme Presets
+  // ---------------------------------------------------------------
+  applyPreset(preset: ThemePreset): void {
+    this.selectedPreset = preset;
+
+    this.themeForm.patchValue({
+      primaryColor: preset.primary,
+      secondaryColor: preset.secondary,
+      backgroundColor: preset.background,
+      textColor: preset.text,
+    });
+
+    // Clear AI palette (preset takes precedence visually)
+    this.aiPalette = null;
+    this.cdr.detectChanges();
+  }
+
+  applyRandomPreset(): void {
+    const available = this.presets.filter(p => p !== this.selectedPreset);
+    const random = available[Math.floor(Math.random() * available.length)];
+    this.applyPreset(random);
+  }
+
+  isPresetActive(preset: ThemePreset): boolean {
+    if (!this.selectedPreset) return false;
+    return this.selectedPreset.name === preset.name;
   }
 }

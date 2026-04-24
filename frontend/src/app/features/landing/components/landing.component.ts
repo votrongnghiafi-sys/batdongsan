@@ -93,7 +93,7 @@ export class LandingComponent implements OnInit {
 
   ngOnInit(): void {
     const params = new URLSearchParams(window.location.search);
-    const siteKey = params.get('site_key') || 'duana';
+    const siteKey = params.get('site_key') || 'reverside';
 
     // Try loading from cache first
     const cached = this.siteService.loadFromCache(siteKey);

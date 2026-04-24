@@ -38,7 +38,7 @@
       <form class="a-form" [formGroup]="generalForm">
         <div class="a-fg">
           <label class="a-lbl">Site Key (subdomain) <span class="req">*</span></label>
-          <input class="a-input" formControlName="site_key" placeholder="duana" [class.a-input--err]="hasError(generalForm, 'site_key')">
+          <input class="a-input" formControlName="site_key" placeholder="reverside" [class.a-input--err]="hasError(generalForm, 'site_key')">
           @if (hasError(generalForm, 'site_key')) {
             <span class="a-err">Chỉ chứa a-z, 0-9, dấu gạch ngang</span>
           }
@@ -214,6 +214,32 @@
             </button>
           </div>
         }
+      </div>
+
+      <!-- ========== Theme Presets ========== -->
+      <div class="presets-section">
+        <div class="presets-section__header">
+          <span class="presets-section__title">🎨 Chọn nhanh bảng màu</span>
+          <button class="a-btn a-btn--ghost a-btn--sm" (click)="applyRandomPreset()" title="Chọn ngẫu nhiên">🎲 Ngẫu nhiên</button>
+        </div>
+        <div class="presets-grid">
+          @for (preset of presets; track preset.name) {
+            <button
+              class="preset-card"
+              [class.preset-card--active]="isPresetActive(preset)"
+              (click)="applyPreset(preset)"
+              [title]="'Chọn để áp dụng nhanh: ' + preset.name"
+            >
+              <div class="preset-card__colors">
+                <span class="preset-card__swatch" [style.background]="preset.primary"></span>
+                <span class="preset-card__swatch" [style.background]="preset.secondary"></span>
+                <span class="preset-card__swatch" [style.background]="preset.accent"></span>
+                <span class="preset-card__swatch" [style.background]="preset.background"></span>
+              </div>
+              <span class="preset-card__name">{{ preset.name }}</span>
+            </button>
+          }
+        </div>
       </div>
 
       <!-- ========== Existing Color Inputs (unchanged) ========== -->

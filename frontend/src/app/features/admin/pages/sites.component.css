@@ -635,3 +635,127 @@
   }
 }
 
+/* =================================================================
+   Theme Presets Grid
+   ================================================================= */
+
+.presets-section {
+  margin-bottom: 1.75rem;
+}
+
+.presets-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.presets-section__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Grid */
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+/* Card */
+.preset-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.preset-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Active state */
+.preset-card--active {
+  border-color: var(--color-primary, #0A84FF) !important;
+  background: rgba(10, 132, 255, 0.08) !important;
+  box-shadow: 0 0 0 1px var(--color-primary, #0A84FF), 0 6px 20px rgba(10, 132, 255, 0.15);
+}
+
+.preset-card--active::after {
+  content: '✓';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-primary, #0A84FF);
+  background: rgba(10, 132, 255, 0.15);
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* 4-swatch color bar */
+.preset-card__colors {
+  display: flex;
+  width: 100%;
+  height: 36px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.preset-card__swatch {
+  flex: 1;
+  transition: filter 0.2s;
+}
+
+.preset-card:hover .preset-card__swatch {
+  filter: brightness(1.08);
+}
+
+/* Name */
+.preset-card__name {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.preset-card--active .preset-card__name {
+  color: var(--color-primary, #0A84FF);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .presets-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .preset-card__colors {
+    height: 28px;
+  }
+
+  .preset-card__name {
+    font-size: 0.62rem;
+  }
+}
