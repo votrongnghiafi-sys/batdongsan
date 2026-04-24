@@ -84,6 +84,139 @@
 
     <!-- ======================= THEME ========================= -->
     @if (activeTab === 'theme') {
+      <!-- ========== AI Palette Generator ========== -->
+      <div class="ai-panel">
+        <div class="ai-panel__header">
+          <span class="ai-panel__icon">🤖</span>
+          <span class="ai-panel__title">AI Tạo bảng màu</span>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="ai-panel__modes">
+          <button
+            class="ai-mode-btn"
+            [class.ai-mode-btn--active]="aiMode === 'hex'"
+            (click)="setAiMode('hex')"
+          >
+            <span>🎨</span> Từ mã màu
+          </button>
+          <button
+            class="ai-mode-btn"
+            [class.ai-mode-btn--active]="aiMode === 'logo'"
+            (click)="setAiMode('logo')"
+          >
+            <span>🖼️</span> Từ logo
+          </button>
+        </div>
+
+        <!-- HEX Mode -->
+        @if (aiMode === 'hex') {
+          <div class="ai-panel__input-row">
+            <div class="ai-hex-group">
+              <input
+                class="a-input a-input--color ai-hex-color"
+                type="color"
+                [value]="aiHexInput"
+                (input)="aiHexInput = $any($event.target).value"
+              >
+              <input
+                class="a-input ai-hex-text"
+                type="text"
+                [value]="aiHexInput"
+                (input)="aiHexInput = $any($event.target).value"
+                placeholder="#ff0000"
+                maxlength="7"
+              >
+            </div>
+            <button
+              class="a-btn a-btn--primary"
+              [disabled]="aiLoading"
+              (click)="generateFromHex()"
+            >
+              @if (aiLoading) { ⏳ } @else { ✨ } Tạo bảng màu
+            </button>
+          </div>
+        }
+
+        <!-- LOGO Mode -->
+        @if (aiMode === 'logo') {
+          <div class="ai-panel__input-row">
+            <label class="ai-file-upload">
+              <input type="file" accept="image/*" (change)="onLogoFileSelected($event)" hidden>
+              <span class="ai-file-upload__btn">
+                📁 {{ aiFileName || 'Chọn ảnh logo' }}
+              </span>
+            </label>
+          </div>
+        }
+
+        <!-- Error -->
+        @if (aiError) {
+          <div class="ai-panel__error">⚠️ {{ aiError }}</div>
+        }
+
+        <!-- Loading -->
+        @if (aiLoading) {
+          <div class="ai-panel__loading">
+            <div class="loading-spinner" style="width:24px;height:24px;border-width:2px"></div>
+            <span>Đang phân tích màu sắc...</span>
+          </div>
+        }
+
+        <!-- AI Result -->
+        @if (aiPalette && !aiLoading) {
+          <div class="ai-palette">
+            <div class="ai-palette__header">
+              <span class="ai-palette__label">Kết quả</span>
+              <button class="a-btn a-btn--ghost a-btn--sm" (click)="regenerateAiPalette()">🔄 Tạo lại</button>
+            </div>
+            <div class="ai-palette__swatches">
+              <div class="ai-swatch">
+                <div class="ai-swatch__color" [style.background]="aiPalette.primaryColor"></div>
+                <span class="ai-swatch__label">Primary</span>
+                <span class="ai-swatch__hex">{{ aiPalette.primaryColor }}</span>
+              </div>
+              <div class="ai-swatch">
+                <div class="ai-swatch__color" [style.background]="aiPalette.secondaryColor"></div>
+                <span class="ai-swatch__label">Secondary</span>
+                <span class="ai-swatch__hex">{{ aiPalette.secondaryColor }}</span>
+              </div>
+              <div class="ai-swatch">
+                <div class="ai-swatch__color" [style.background]="aiPalette.backgroundColor"></div>
+                <span class="ai-swatch__label">Background</span>
+                <span class="ai-swatch__hex">{{ aiPalette.backgroundColor }}</span>
+              </div>
+              <div class="ai-swatch">
+                <div class="ai-swatch__color" [style.background]="aiPalette.textColor"></div>
+                <span class="ai-swatch__label">Text</span>
+                <span class="ai-swatch__hex">{{ aiPalette.textColor }}</span>
+              </div>
+              <div class="ai-swatch">
+                <div class="ai-swatch__color" [style.background]="aiPalette.accentColor"></div>
+                <span class="ai-swatch__label">Accent</span>
+                <span class="ai-swatch__hex">{{ aiPalette.accentColor }}</span>
+              </div>
+            </div>
+
+            <!-- Mini preview -->
+            <div class="ai-palette__mini-preview" [style.background]="aiPalette.backgroundColor" [style.color]="aiPalette.textColor">
+              <div class="ai-palette__mini-preview-bar" [style.background]="'linear-gradient(90deg, ' + aiPalette.primaryColor + ', ' + aiPalette.secondaryColor + ')'"></div>
+              <span style="font-size:.8rem;opacity:.6">Xem trước nhanh</span>
+              <div style="display:flex;gap:.5rem;margin-top:.5rem">
+                <span class="ai-mini-btn" [style.background]="aiPalette.primaryColor">Primary</span>
+                <span class="ai-mini-btn" [style.background]="aiPalette.secondaryColor">Secondary</span>
+                <span class="ai-mini-btn" [style.background]="aiPalette.accentColor">Accent</span>
+              </div>
+            </div>
+
+            <button class="a-btn a-btn--primary a-btn--lg ai-apply-btn" (click)="applyAiPalette()">
+              ✅ Áp dụng bảng màu
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- ========== Existing Color Inputs (unchanged) ========== -->
       <form class="a-form" [formGroup]="themeForm">
         <div class="a-form-grid">
           <div class="a-fg">

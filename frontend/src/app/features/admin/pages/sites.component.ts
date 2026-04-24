@@ -2,6 +2,7 @@ import { Component, inject, OnInit, ChangeDetectorRef, OnDestroy } from '@angula
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin.service';
+import { AiThemeService, AiPalette } from '../../../core/services/ai-theme.service';
 import { SiteConfigMap } from '../../../core/models/interfaces';
 
 type TabKey = 'general' | 'branding' | 'theme' | 'contact' | 'project' | 'lead' | 'features' | 'layout' | 'seo';
@@ -23,6 +24,7 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   private admin = inject(AdminService);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  private aiTheme = inject(AiThemeService);
 
   // State
   sites: any[] = [];
@@ -32,6 +34,14 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   activeTab: TabKey = 'general';
   saving = false;
   configLoaded = false;
+
+  // AI Palette Generator state
+  aiMode: 'hex' | 'logo' = 'hex';
+  aiHexInput = '#0A84FF';
+  aiLoading = false;
+  aiPalette: AiPalette | null = null;
+  aiError = '';
+  aiFileName = '';
 
   // Preview
   previewColors = { primary: '#0A84FF', secondary: '#30D158', bg: '#08080f', text: '#f0f0f5' };
@@ -374,5 +384,105 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   hasError(form: FormGroup, field: string): boolean {
     const ctrl = form.get(field);
     return !!ctrl && ctrl.invalid && ctrl.touched;
+  }
+
+  // ---------------------------------------------------------------
+  // AI Palette Generator
+  // ---------------------------------------------------------------
+  setAiMode(mode: 'hex' | 'logo'): void {
+    this.aiMode = mode;
+    this.aiPalette = null;
+    this.aiError = '';
+    this.aiFileName = '';
+    this.cdr.detectChanges();
+  }
+
+  generateFromHex(): void {
+    const hex = this.aiHexInput?.trim();
+    if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) {
+      this.aiError = 'Vui lòng nhập mã màu HEX hợp lệ (vd: #ff0000)';
+      this.cdr.detectChanges();
+      return;
+    }
+    this.aiLoading = true;
+    this.aiError = '';
+    this.aiPalette = null;
+    this.cdr.detectChanges();
+
+    this.aiTheme.generateFromHex(hex).subscribe({
+      next: (palette) => {
+        this.aiPalette = palette;
+        this.aiLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.aiError = 'Không thể tạo bảng màu.';
+        this.aiLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  onLogoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.aiError = 'Vui lòng chọn file hình ảnh.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.aiFileName = file.name;
+    this.aiLoading = true;
+    this.aiError = '';
+    this.aiPalette = null;
+    this.cdr.detectChanges();
+
+    // Try server-side first, fallback to client-side
+    this.aiTheme.generateFromImage(file).subscribe({
+      next: (palette) => {
+        this.aiPalette = palette;
+        this.aiLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // Fallback to client-side Canvas extraction
+        this.aiTheme.extractFromImageClientSide(file).subscribe({
+          next: (palette) => {
+            this.aiPalette = palette;
+            this.aiLoading = false;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.aiError = 'Không thể phân tích ảnh.';
+            this.aiLoading = false;
+            this.cdr.detectChanges();
+          },
+        });
+      },
+    });
+  }
+
+  applyAiPalette(): void {
+    if (!this.aiPalette) return;
+
+    this.themeForm.patchValue({
+      primaryColor: this.aiPalette.primaryColor,
+      secondaryColor: this.aiPalette.secondaryColor,
+      backgroundColor: this.aiPalette.backgroundColor,
+      textColor: this.aiPalette.textColor,
+    });
+
+    // Triggers the existing themeForm.valueChanges → previewColors update
+    this.cdr.detectChanges();
+  }
+
+  regenerateAiPalette(): void {
+    if (this.aiMode === 'hex') {
+      this.generateFromHex();
+    }
+    // For logo mode, user re-selects file
   }
 }
