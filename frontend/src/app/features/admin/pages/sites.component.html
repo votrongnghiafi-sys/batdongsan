@@ -10,7 +10,10 @@
   <div class="a-card__head">
     <span class="a-card__title">{{ editId ? '✏️ Chỉnh sửa Site #' + editId : '➕ Tạo Site mới' }}</span>
     @if (editId) {
-      <button type="button" class="a-btn a-btn--ghost a-btn--sm" (click)="cancelEdit()">✕ Hủy</button>
+      <div style="display:flex;gap:0.5rem">
+        <button type="button" class="a-btn a-btn--sm" style="background:rgba(10,132,255,0.15);color:#5aafff;border:1px solid rgba(10,132,255,0.3)" (click)="openBuilder()">📐 Page Builder</button>
+        <button type="button" class="a-btn a-btn--ghost a-btn--sm" (click)="cancelEdit()">✕ Hủy</button>
+      </div>
     }
   </div>
 

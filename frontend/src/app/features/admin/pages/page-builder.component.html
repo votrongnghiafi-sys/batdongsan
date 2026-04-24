@@ -1,0 +1,218 @@
+<!-- ================================================================
+     V5: Visual Page Builder
+     ================================================================ -->
+<div class="pb">
+
+  <!-- Top Bar -->
+  <header class="pb-header">
+    <div class="pb-header__left">
+      <button class="pb-btn pb-btn--ghost" (click)="goBack()">← Quay lại</button>
+      <h2 class="pb-header__title">📐 Page Builder — {{ siteName || 'Site #' + siteId }}</h2>
+    </div>
+    <div class="pb-header__right">
+      <button class="pb-btn pb-btn--outline" (click)="togglePreview()">
+        {{ previewMode ? '✏️ Chỉnh sửa' : '👁️ Xem trước' }}
+      </button>
+      <button class="pb-btn pb-btn--primary" (click)="save()" [disabled]="saving">
+        {{ saving ? '⏳ Đang lưu...' : '💾 Lưu' }}
+      </button>
+    </div>
+  </header>
+
+  <!-- Message -->
+  @if (msg) {
+    <div class="pb-toast" [class.pb-toast--ok]="msgType === 'ok'" [class.pb-toast--err]="msgType === 'err'">
+      {{ msg }}
+    </div>
+  }
+
+  <div class="pb-body">
+
+    <!-- ==================== LEFT: Section List =================== -->
+    <aside class="pb-sidebar">
+      <div class="pb-sidebar__header">
+        <span class="pb-sidebar__title">Sections</span>
+        <button class="pb-btn pb-btn--sm pb-btn--accent" (click)="showAddModal = true">
+          ＋ Thêm
+        </button>
+      </div>
+
+      <!-- Drag & Drop List -->
+      <div class="pb-section-list" cdkDropList (cdkDropListDropped)="onDrop($event)">
+        @for (item of layout; track item.id; let i = $index) {
+          <div class="pb-section-item"
+               cdkDrag
+               [class.pb-section-item--selected]="selectedId === item.id"
+               [class.pb-section-item--disabled]="!isEnabled(item.id)"
+               (click)="selectSection(item.id)">
+
+            <!-- Drag Handle -->
+            <span class="pb-section-item__handle" cdkDragHandle>⣿</span>
+
+            <!-- Info -->
+            <div class="pb-section-item__info">
+              <span class="pb-section-item__icon">{{ getTemplate(item.type)?.icon || '📦' }}</span>
+              <span class="pb-section-item__name">{{ getTemplate(item.type)?.label || item.type }}</span>
+              @if (!isEnabled(item.id)) {
+                <span class="pb-section-item__badge pb-section-item__badge--off">Ẩn</span>
+              }
+            </div>
+
+            <!-- Actions -->
+            <div class="pb-section-item__actions">
+              <button class="pb-icon-btn" title="Bật/tắt" (click)="toggleEnabled(item.id, $event)">
+                {{ isEnabled(item.id) ? '👁️' : '🚫' }}
+              </button>
+              <button class="pb-icon-btn" title="Nhân bản" (click)="duplicateSection(item.id, $event)">📋</button>
+              <button class="pb-icon-btn pb-icon-btn--danger" title="Xóa" (click)="removeSection(item.id, $event)">🗑️</button>
+            </div>
+
+            <!-- Drag Preview -->
+            <div *cdkDragPlaceholder class="pb-section-placeholder"></div>
+          </div>
+        }
+      </div>
+
+      @if (layout.length === 0) {
+        <p class="pb-sidebar__empty">Chưa có section nào. Nhấn "Thêm" để bắt đầu.</p>
+      }
+    </aside>
+
+    <!-- ==================== RIGHT: Editor / Preview ============== -->
+    <main class="pb-main">
+      @if (previewMode) {
+        <!-- Preview Mode -->
+        <div class="pb-preview">
+          <div class="pb-preview__frame">
+            @for (item of layout; track item.id) {
+              @if (isEnabled(item.id)) {
+                <div class="pb-preview__section">
+                  <div class="pb-preview__section-label">
+                    {{ getTemplate(item.type)?.icon }} {{ getTemplate(item.type)?.label }}
+                  </div>
+                  <div class="pb-preview__section-body">
+                    @if (getConfig(item.id)['title']) {
+                      <h3>{{ getConfig(item.id)['title'] }}</h3>
+                    }
+                    @if (getConfig(item.id)['subtitle'] || getConfig(item.id)['description']) {
+                      <p>{{ getConfig(item.id)['subtitle'] || getConfig(item.id)['description'] }}</p>
+                    }
+                    @if (getConfig(item.id)['backgroundImage']) {
+                      <div class="pb-preview__img-hint">🖼️ {{ getConfig(item.id)['backgroundImage'] }}</div>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      } @else {
+        <!-- Editor Mode -->
+        @if (selectedId) {
+          <div class="pb-editor">
+            <div class="pb-editor__header">
+              <span class="pb-editor__icon">{{ getSelectedTemplate()?.icon }}</span>
+              <h3 class="pb-editor__title">{{ getSelectedTemplate()?.label || selectedId }}</h3>
+              <span class="pb-editor__id">ID: {{ selectedId }}</span>
+            </div>
+
+            <!-- Enabled Toggle -->
+            <label class="pb-editor__toggle">
+              <input type="checkbox"
+                [checked]="isEnabled(selectedId)"
+                (change)="toggleEnabled(selectedId, $event)">
+              <span>Hiển thị section này</span>
+            </label>
+
+            <!-- Schema-driven Fields -->
+            @if (schemaEntries.length > 0) {
+              <div class="pb-editor__fields">
+                @for (entry of schemaEntries; track entry[0]) {
+                  <div class="pb-field">
+                    <label class="pb-field__label">{{ entry[1].label }}</label>
+
+                    @switch (entry[1].type) {
+                      @case ('text') {
+                        <input class="pb-field__input" type="text"
+                          [placeholder]="entry[1].placeholder || ''"
+                          [value]="getSelectedConfig()[entry[0]] || ''"
+                          (input)="updateField(selectedId, entry[0], $any($event.target).value)">
+                      }
+                      @case ('textarea') {
+                        <textarea class="pb-field__input pb-field__input--textarea" rows="3"
+                          [placeholder]="entry[1].placeholder || ''"
+                          [value]="getSelectedConfig()[entry[0]] || ''"
+                          (input)="updateField(selectedId, entry[0], $any($event.target).value)"></textarea>
+                      }
+                      @case ('number') {
+                        <input class="pb-field__input" type="number"
+                          [min]="entry[1].min || 0"
+                          [max]="entry[1].max || 999"
+                          [value]="getSelectedConfig()[entry[0]] || 0"
+                          (input)="updateField(selectedId, entry[0], +$any($event.target).value)">
+                      }
+                      @case ('select') {
+                        <select class="pb-field__input"
+                          [value]="getSelectedConfig()[entry[0]] || ''"
+                          (change)="updateField(selectedId, entry[0], $any($event.target).value)">
+                          @for (opt of entry[1].options; track opt.value) {
+                            <option [value]="opt.value">{{ opt.label }}</option>
+                          }
+                        </select>
+                      }
+                      @case ('toggle') {
+                        <label class="pb-field__check">
+                          <input type="checkbox"
+                            [checked]="getSelectedConfig()[entry[0]] === true"
+                            (change)="updateField(selectedId, entry[0], $any($event.target).checked)">
+                          <span>{{ entry[1].label }}</span>
+                        </label>
+                      }
+                      @case ('image') {
+                        <input class="pb-field__input" type="text"
+                          [placeholder]="'/uploads/hero.jpg'"
+                          [value]="getSelectedConfig()[entry[0]] || ''"
+                          (input)="updateField(selectedId, entry[0], $any($event.target).value)">
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="pb-editor__empty">Section này chưa có cấu hình mở rộng.</p>
+            }
+          </div>
+        } @else {
+          <div class="pb-editor-empty">
+            <span class="pb-editor-empty__icon">👈</span>
+            <p>Chọn một section từ danh sách bên trái để chỉnh sửa</p>
+          </div>
+        }
+      }
+    </main>
+  </div>
+</div>
+
+<!-- ==================== Add Section Modal =================== -->
+@if (showAddModal) {
+  <div class="pb-modal-overlay" (click)="showAddModal = false">
+    <div class="pb-modal" (click)="$event.stopPropagation()">
+      <h3 class="pb-modal__title">Thêm Section</h3>
+      <div class="pb-modal__grid">
+        @for (t of templates; track t.type) {
+          <button class="pb-template-card"
+                  [class.pb-template-card--disabled]="!canAdd(t.type)"
+                  [disabled]="!canAdd(t.type)"
+                  (click)="addSection(t.type)">
+            <span class="pb-template-card__icon">{{ t.icon }}</span>
+            <span class="pb-template-card__name">{{ t.label }}</span>
+            @if (!canAdd(t.type)) {
+              <span class="pb-template-card__limit">Đã đủ</span>
+            }
+          </button>
+        }
+      </div>
+      <button class="pb-btn pb-btn--ghost pb-modal__close" (click)="showAddModal = false">Đóng</button>
+    </div>
+  </div>
+}

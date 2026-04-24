@@ -38,6 +38,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/leads.component').then(m => m.AdminLeadsComponent),
       },
+      {
+        path: 'builder',
+        loadComponent: () =>
+          import('./features/admin/pages/page-builder.component').then(m => m.PageBuilderComponent),
+      },
     ],
   },
 ];

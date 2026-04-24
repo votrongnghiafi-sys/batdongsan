@@ -403,6 +403,27 @@ class SiteConfigService {
     }
 
     // ---------------------------------------------------------------
+    // V5: Layout normalization (backward compatible)
+    // ---------------------------------------------------------------
+
+    /**
+     * Normalize homepage layout from either:
+     * - V4 plain strings: ["hero", "about"]
+     * - V5 objects: [{"id":"hero-1","type":"hero"}, ...]
+     *
+     * Always returns string[] for V3/V4 compat.
+     */
+    public function normalizeHomepageToV4(array $homepage): array {
+        if (empty($homepage)) return [];
+
+        return array_map(function ($item) {
+            if (is_string($item)) return $item;
+            if (is_array($item) && isset($item['type'])) return $item['type'];
+            return '';
+        }, $homepage);
+    }
+
+    // ---------------------------------------------------------------
     // Public API: Full config response
     // ---------------------------------------------------------------
 

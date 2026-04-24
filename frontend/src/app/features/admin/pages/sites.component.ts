@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
 import { AiThemeService, AiPalette } from '../../../core/services/ai-theme.service';
 import { THEME_PRESETS, ThemePreset } from '../../../core/constants/theme-presets';
@@ -26,6 +27,7 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
   private aiTheme = inject(AiThemeService);
+  private router = inject(Router);
 
   // State
   sites: any[] = [];
@@ -546,5 +548,11 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   isPresetActive(preset: ThemePreset): boolean {
     if (!this.selectedPreset) return false;
     return this.selectedPreset.name === preset.name;
+  }
+
+  // V5: Open Page Builder
+  openBuilder(): void {
+    if (!this.editId) return;
+    this.router.navigate(['/admin/builder'], { queryParams: { site_id: this.editId } });
   }
 }
