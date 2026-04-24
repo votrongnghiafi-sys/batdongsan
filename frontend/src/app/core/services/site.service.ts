@@ -71,6 +71,19 @@ export class SiteService {
       if (config.theme.fontFamily && config.theme.fontFamily !== 'Inter') {
         root.style.setProperty('font-family', `'${config.theme.fontFamily}', sans-serif`);
       }
+      // V3 semantic tokens
+      if (config.theme.accentColor) {
+        root.style.setProperty('--color-accent', config.theme.accentColor);
+      }
+      if (config.theme.borderColor) {
+        root.style.setProperty('--border-color', config.theme.borderColor);
+      }
+      if (config.theme.mutedColor) {
+        root.style.setProperty('--color-muted', config.theme.mutedColor);
+      }
+      if (config.theme.borderRadius) {
+        root.style.setProperty('--border-radius', config.theme.borderRadius);
+      }
     } else {
       // V1 fallback — from sites table
       if (config.site?.primary_color) {
@@ -97,6 +110,11 @@ export class SiteService {
     this.setMeta('description', config.seo.metaDescription);
     this.setMeta('keywords', config.seo.keywords);
 
+    // V3: robots meta
+    if (config.seo.robots) {
+      this.setMeta('robots', config.seo.robots);
+    }
+
     // Open Graph
     this.setMeta('og:title', config.seo.metaTitle || config.site?.name || '', 'property');
     this.setMeta('og:description', config.seo.metaDescription, 'property');
@@ -107,6 +125,17 @@ export class SiteService {
     // Title from SEO config
     if (config.seo.metaTitle) {
       document.title = config.seo.metaTitle;
+    }
+
+    // V3: canonical URL
+    if (config.seo.canonicalUrl) {
+      let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'canonical';
+        document.head.appendChild(link);
+      }
+      link.href = config.seo.canonicalUrl;
     }
   }
 

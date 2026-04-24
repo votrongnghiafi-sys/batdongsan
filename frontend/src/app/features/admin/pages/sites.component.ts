@@ -115,6 +115,11 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
       backgroundColor: ['#08080f'],
       textColor: ['#f0f0f5'],
       fontFamily: ['Inter'],
+      // V3 semantic tokens
+      accentColor: ['#38BDF8'],
+      borderColor: ['rgba(255, 255, 255, 0.08)'],
+      mutedColor: ['#6B7280'],
+      borderRadius: ['12px'],
     });
 
     this.contactForm = this.fb.group({
@@ -139,6 +144,9 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
       enableHoneypot: [true],
       rateLimit: [5, [Validators.min(1), Validators.max(100)]],
       notifyEmail: ['', Validators.email],
+      // V3
+      webhookUrl: [''],
+      successMessage: ['Cảm ơn bạn, chuyên viên sẽ liên hệ sớm.'],
     });
 
     this.featuresForm = this.fb.group({
@@ -156,10 +164,13 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
     });
 
     this.seoForm = this.fb.group({
-      metaTitle: [''],
+      metaTitle: ['', Validators.maxLength(70)],
       metaDescription: ['', Validators.maxLength(160)],
       ogImage: [''],
       keywords: [''],
+      // V3
+      canonicalUrl: [''],
+      robots: ['index,follow'],
     });
 
     // Live preview for theme tab

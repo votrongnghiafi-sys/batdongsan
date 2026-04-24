@@ -1,11 +1,14 @@
 <?php
 /**
- * Public API: GET /api/sites/by-domain.php?domain=xxx
- * Returns the full merged config for a site identified by domain.
+ * Public API: GET /api/sites/by-domain.php
  *
- * Also supports: ?site_key=xxx for backward compat / testing.
+ * Supported parameters:
+ *   ?domain=riverside.batdongsanuytin.com   (recommended)
+ *   ?site_key=riverside                      (DEPRECATED — use /api/sites/by-key.php instead)
  *
- * Response: { site, project, sections, branding, theme, contact, features, layout, seo, lead, project_config }
+ * If neither is provided, auto-detects from subdomain.
+ *
+ * Response: { site, branding, theme, contact, features, layout, seo, lead, project, meta }
  */
 define('APP_INIT', true);
 require_once __DIR__ . '/../../core/config/db.php';

@@ -277,6 +277,28 @@
           </select>
         </div>
 
+        <!-- V3 Semantic Tokens -->
+        <div class="a-form-grid" style="margin-top: 1rem">
+          <div class="a-fg">
+            <label class="a-lbl">Accent</label>
+            <input class="a-input a-input--color" formControlName="accentColor" type="color">
+            <span class="a-hint">{{ themeForm.value.accentColor }}</span>
+          </div>
+          <div class="a-fg">
+            <label class="a-lbl">Viền</label>
+            <input class="a-input" formControlName="borderColor" placeholder="rgba(...)">
+          </div>
+          <div class="a-fg">
+            <label class="a-lbl">Phụ (muted)</label>
+            <input class="a-input a-input--color" formControlName="mutedColor" type="color">
+            <span class="a-hint">{{ themeForm.value.mutedColor }}</span>
+          </div>
+          <div class="a-fg">
+            <label class="a-lbl">Bo góc</label>
+            <input class="a-input" formControlName="borderRadius" placeholder="12px">
+          </div>
+        </div>
+
         <!-- Live Preview -->
         <div class="cfg-preview" [style.background]="previewColors.bg" [style.color]="previewColors.text">
           <div class="cfg-preview__title">Xem trước giao diện</div>
@@ -364,6 +386,15 @@
           <label class="a-lbl a-lbl--check">
             <input type="checkbox" formControlName="enableHoneypot"> Bật chống spam (honeypot)
           </label>
+        </div>
+        <!-- V3 -->
+        <div class="a-fg">
+          <label class="a-lbl">Webhook URL <span class="a-hint">(tùy chọn)</span></label>
+          <input class="a-input" formControlName="webhookUrl" placeholder="https://api.crm.com/webhook">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Thông báo thành công</label>
+          <input class="a-input" formControlName="successMessage" placeholder="Cảm ơn bạn...">
         </div>
       </form>
     }
@@ -475,6 +506,25 @@
           <label class="a-lbl">Keywords</label>
           <input class="a-input" formControlName="keywords" placeholder="bất động sản, dự án, quận 2">
         </div>
+        <!-- V3 -->
+        <div class="a-fg">
+          <label class="a-lbl">Canonical URL <span class="a-hint">(tùy chọn)</span></label>
+          <input class="a-input" formControlName="canonicalUrl" placeholder="https://riverside.batdongsanuytin.com">
+        </div>
+        <div class="a-fg">
+          <label class="a-lbl">Robots</label>
+          <select class="a-input" formControlName="robots">
+            <option value="index,follow">index,follow</option>
+            <option value="noindex,follow">noindex,follow</option>
+            <option value="index,nofollow">index,nofollow</option>
+            <option value="noindex,nofollow">noindex,nofollow</option>
+          </select>
+        </div>
+
+        <!-- Meta Title counter -->
+        @if (seoForm.value.metaTitle?.length > 60) {
+          <div class="a-hint" style="color: #F59E0B">⚠️ Meta Title: {{ seoForm.value.metaTitle?.length }}/70 ký tự</div>
+        }
 
         <!-- SEO Preview -->
         <div class="cfg-seo-preview">

@@ -69,6 +69,12 @@ export interface ThemeConfig {
   backgroundColor: string;
   textColor: string;
   fontFamily: string;
+  // V3 semantic tokens
+  presetId?: string;
+  accentColor?: string;
+  borderColor?: string;
+  mutedColor?: string;
+  borderRadius?: string;
 }
 
 export interface ContactConfig {
@@ -98,6 +104,10 @@ export interface SeoConfig {
   metaDescription: string;
   ogImage: string;
   keywords: string;
+  // V3
+  canonicalUrl?: string;
+  robots?: string;
+  schemaJson?: Record<string, unknown>;
 }
 
 export interface LeadConfig {
@@ -107,6 +117,11 @@ export interface LeadConfig {
   enableHoneypot?: boolean;
   rateLimit?: number;
   notifyEmail?: string;
+  // V3
+  saveToDatabase?: boolean;
+  autoAssign?: boolean;
+  webhookUrl?: string;
+  successMessage?: string;
 }
 
 export interface ProjectConfig {
@@ -200,6 +215,14 @@ export interface SiteConfig {
   layout?: LayoutConfig;
   seo?: SeoConfig;
   lead?: LeadConfig;
+
+  // V3 meta
+  meta?: ConfigMeta;
+}
+
+export interface ConfigMeta {
+  configVersion: number;
+  loadedAt: string;
 }
 
 /**

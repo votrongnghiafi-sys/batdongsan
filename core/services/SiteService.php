@@ -54,8 +54,12 @@ class SiteService {
     }
 
     /**
-     * V2 API response — new SaaS config structure.
-     * Returns { site, project, sections, branding, theme, contact, features, layout, seo, lead }
+     * V2 API response — SaaS-ready config structure.
+     *
+     * Returns { site (identity only), project, sections, branding, theme, contact,
+     *           features, layout, seo, lead, project_config, meta }
+     *
+     * Source of truth: site_configs table, with fallback to sites table columns.
      */
     public function getFullSiteConfigV2(string $siteKeyOrDomain, bool $isDomain = false): ?array {
         $site = $isDomain
@@ -66,16 +70,15 @@ class SiteService {
 
         require_once __DIR__ . '/SiteConfigService.php';
         $configService = new SiteConfigService($this->db);
-        $configs = $configService->getPublicConfig($site['id']);
 
-        return array_merge(
-            [
-                'site'     => $site,
-                'project'  => $this->getProjectBySiteId($site['id']),
-                'sections' => $this->getSections($site['id']),
-            ],
-            $configs
-        );
+        // Pass full site row for fallback logic (TASK 2)
+        $merged = $configService->getPublicConfig($site['id'], $site);
+
+        // Add project & sections (V1 compat)
+        $merged['project_data'] = $this->getProjectBySiteId($site['id']);
+        $merged['sections']     = $this->getSections($site['id']);
+
+        return $merged;
     }
 
     /**
