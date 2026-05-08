@@ -1,0 +1,201 @@
+// ============================================================
+// Smart Filters — Eco real estate filter panel
+// ============================================================
+
+.eco-filters {
+  padding: 4rem 1.5rem;
+  background: linear-gradient(180deg, rgba(223, 245, 232, 0.4) 0%, var(--color-bg, #F7FBF8) 100%);
+}
+
+.eco-filters__card {
+  max-width: 1280px;
+  margin: 2.5rem auto 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-lg, 24px);
+  padding: 2rem;
+  box-shadow: 0 8px 40px rgba(47, 163, 107, 0.08);
+}
+
+.eco-filters__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.75rem;
+}
+
+// ── Filter Group ──────────────────────────────────────────────
+.eco-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.eco-filter-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4a6b5a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  strong {
+    color: var(--color-primary, #2FA36B);
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+}
+
+.eco-filter-select {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid rgba(47, 163, 107, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-text, #102018);
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%232FA36B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary, #2FA36B);
+    box-shadow: 0 0 0 3px rgba(47, 163, 107, 0.12);
+  }
+}
+
+// ── Range ─────────────────────────────────────────────────────
+.eco-filter-range-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.eco-filter-range {
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  background: linear-gradient(
+    to right,
+    var(--color-primary, #2FA36B) 0%,
+    var(--color-primary, #2FA36B) var(--val, 50%),
+    rgba(47, 163, 107, 0.15) var(--val, 50%)
+  );
+  border-radius: 100px;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-primary, #2FA36B);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(47, 163, 107, 0.4);
+    cursor: grab;
+    transition: transform 0.15s ease;
+
+    &:active { cursor: grabbing; transform: scale(1.2); }
+  }
+
+  &:focus { outline: none; }
+}
+
+.eco-filter-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #9abaaa;
+}
+
+// ── Chips ─────────────────────────────────────────────────────
+.eco-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.eco-chip {
+  padding: 0.4rem 0.9rem;
+  border: 1.5px solid rgba(47, 163, 107, 0.25);
+  background: rgba(255, 255, 255, 0.8);
+  color: #4a6b5a;
+  border-radius: 100px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-primary, #2FA36B);
+    color: var(--color-primary, #2FA36B);
+  }
+
+  &--active {
+    background: var(--color-primary, #2FA36B);
+    border-color: var(--color-primary, #2FA36B);
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+// ── Actions ───────────────────────────────────────────────────
+.eco-filters__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(47, 163, 107, 0.1);
+}
+
+.eco-filters__reset {
+  background: none;
+  border: none;
+  color: #6b8b7a;
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: color 0.2s;
+
+  &:hover { color: var(--color-primary, #2FA36B); }
+}
+
+.eco-filters__apply {
+  padding: 0.75rem 2rem;
+  font-size: 0.9rem;
+}
+
+// Reuse from hero section
+.eco-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.8rem;
+  border-radius: 100px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  border: 2px solid transparent;
+
+  &--primary {
+    background: var(--color-primary, #2FA36B);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(47, 163, 107, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(47, 163, 107, 0.45);
+    }
+  }
+}

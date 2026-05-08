@@ -1,0 +1,53 @@
+<section class="lead-section" id="section-lead-form">
+  <div class="lead-form glass-panel">
+    <div class="section-head">
+      <h2>{{ section.title }}</h2>
+      <p>Để lại thông tin, đội ngũ tư vấn sẽ liên hệ và gửi danh sách dự án phù hợp.</p>
+    </div>
+
+    <!-- Success state -->
+    <div class="lead-success" *ngIf="success">
+      <div class="lead-success__icon">🎉</div>
+      <h3>Đăng ký thành công!</h3>
+      <p>Chuyên gia của chúng tôi sẽ liên hệ trong vòng 30 phút.</p>
+      <button class="btn btn-primary" type="button" id="btn-lead-again" (click)="reset()">Gửi thêm</button>
+    </div>
+
+    <!-- Form -->
+    <form class="form-grid" *ngIf="!success" (ngSubmit)="submit()" id="lead-form">
+      <!-- Honeypot -->
+      <input type="text" name="website" [(ngModel)]="honey" autocomplete="off" tabindex="-1" class="honeypot" />
+
+      <input type="text"  id="lead-name"  name="name"  [(ngModel)]="name"  placeholder="Họ và tên"       required />
+      <input type="tel"   id="lead-phone" name="phone" [(ngModel)]="phone" placeholder="Số điện thoại"   required />
+
+      <select id="lead-interest" name="interest" [(ngModel)]="interest">
+        <option value="">Nhu cầu quan tâm</option>
+        <option value="buy">Mua ở</option>
+        <option value="invest">Đầu tư</option>
+        <option value="rent">Cho thuê dòng tiền</option>
+      </select>
+
+      <select id="lead-budget" name="budget" [(ngModel)]="budget">
+        <option value="">Ngân sách</option>
+        <option value="2-3">2 – 3 tỷ</option>
+        <option value="3-5">3 – 5 tỷ</option>
+        <option value="5+">5 tỷ+</option>
+      </select>
+
+      <textarea id="lead-message" name="message" [(ngModel)]="message"
+        placeholder="Ghi chú thêm" rows="4"></textarea>
+    </form>
+
+    <div class="submit-area" *ngIf="!success">
+      <button class="btn btn-primary" type="submit" form="lead-form"
+        id="btn-lead-submit"
+        [disabled]="submitting || !name || !phone">
+        <span *ngIf="!submitting">Gửi thông tin</span>
+        <span *ngIf="submitting" class="loading-dots">
+          <span></span><span></span><span></span>
+        </span>
+      </button>
+    </div>
+  </div>
+</section>

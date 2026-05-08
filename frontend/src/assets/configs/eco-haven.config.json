@@ -1,0 +1,171 @@
+{
+  "sidebar": {
+    "logo": "EcoHaven",
+    "tagline": "Live Green. Live Future.",
+    "menu": [
+      { "label": "Dashboard", "icon": "⊞", "active": true },
+      { "label": "Properties", "icon": "🏠" },
+      { "label": "AI Match", "icon": "✦" },
+      { "label": "Sustainability", "icon": "🌱" },
+      { "label": "Investments", "icon": "◎" },
+      { "label": "Impact Tracker", "icon": "📈" },
+      { "label": "Community", "icon": "👥" },
+      { "label": "Messages", "icon": "💬", "badge": 3 },
+      { "label": "Settings", "icon": "⚙" }
+    ],
+    "aiBox": {
+      "title": "Ai Sustainability Assistant",
+      "matchCount": 18,
+      "ctaLabel": "View Recommendations"
+    },
+    "impactTitle": "Your Impact This Month",
+    "viewImpactLabel": "View Full Impact Report",
+    "impactStats": [
+      { "icon": "🌿", "label": "CO₂ Reduced", "value": "1.2 Tonnes", "change": "+12%", "positive": true },
+      { "icon": "⚡", "label": "Energy Saved", "value": "456 kWh", "change": "+8%", "positive": true },
+      { "icon": "💧", "label": "Water Saved", "value": "12,340 L", "change": "+15%", "positive": true }
+    ]
+  },
+  "topbar": {
+    "navLinks": [
+      { "label": "Properties" },
+      { "label": "Sustainability" },
+      { "label": "Community" },
+      { "label": "Investors" },
+      { "label": "About" }
+    ],
+    "searchPlaceholder": "Search eco properties, locations...",
+    "notifications": 3,
+    "user": {
+      "name": "Emma Green",
+      "role": "Eco Investor",
+      "avatarInitials": "EG"
+    }
+  },
+  "hero": {
+    "headline": "The Future is",
+    "headlineHighlight": "Sustainable Living",
+    "subtitle": "Discover AI-curated eco properties for a greener tomorrow.",
+    "ctaPrimary": "Explore Properties",
+    "ctaSecondary": "Learn More",
+    "socialProof": "Join 12,500+ eco investors building a sustainable future",
+    "buildingImage": "/assets/images/eco-building-hero.png",
+    "floatingTags": [
+      { "icon": "☀️", "label": "Solar Energy", "subLabel": "98% Efficiency", "pos": "top-left" },
+      { "icon": "💨", "label": "Air Quality", "subLabel": "Excellent", "pos": "top-right" },
+      { "icon": "🌿", "label": "Green Coverage", "subLabel": "76%", "pos": "bottom-left" },
+      { "icon": "💧", "label": "Water Recycling", "subLabel": "92%", "pos": "bottom-right" }
+    ]
+  },
+  "dashboardCards": [
+    {
+      "id": "card-carbon",
+      "type": "default",
+      "title": "Carbon Footprint",
+      "value": "-2.4",
+      "unit": "Tonnes CO₂ / year",
+      "trend": "-18%",
+      "trendUp": true,
+      "color": "#2FA36B",
+      "link": "View Details"
+    },
+    {
+      "id": "card-score",
+      "type": "score",
+      "title": "Sustainability Score",
+      "value": "9.2",
+      "unit": "/ 10 Excellent",
+      "trend": "+0.3",
+      "trendUp": true,
+      "color": "#2FA36B",
+      "maxLabel": "/10",
+      "scorePercent": 0.92,
+      "subScores": [9.0, 8.8, 9.5, 9.3, 9.1],
+      "link": "View Full Breakdown"
+    },
+    {
+      "id": "card-trend",
+      "type": "chart",
+      "title": "Market Trend",
+      "value": "+24%",
+      "unit": "YTD Growth",
+      "trend": "↑ High",
+      "trendUp": true,
+      "color": "#2FA36B",
+      "chartPoints": [28, 38, 32, 52, 46, 64, 72],
+      "link": "View Market Insights"
+    }
+  ],
+  "propertiesSection": {
+    "title": "Featured Eco Properties",
+    "viewAllLabel": "View All Properties",
+    "properties": [
+      {
+        "id": 1,
+        "name": "Green Harbor Residences",
+        "location": "Copenhagen, Denmark",
+        "price": "€780,000",
+        "beds": 3,
+        "baths": 2,
+        "area": 120,
+        "score": 9.1,
+        "roi": "+5.3% ROI",
+        "badge": "TOP PICK",
+        "image": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&q=80"
+      },
+      {
+        "id": 2,
+        "name": "Forest Edge Villas",
+        "location": "Vancouver, Canada",
+        "price": "€1,250,000",
+        "beds": 4,
+        "baths": 3,
+        "area": 200,
+        "score": 9.3,
+        "roi": "+9.2% ROI",
+        "badge": "NEW",
+        "image": "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=600&q=80"
+      },
+      {
+        "id": 3,
+        "name": "Sky Garden Towers",
+        "location": "Singapore",
+        "price": "€950,000",
+        "beds": 2,
+        "baths": 3,
+        "area": 95,
+        "score": 9.0,
+        "roi": "+7.8% ROI",
+        "image": "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80"
+      },
+      {
+        "id": 4,
+        "name": "Eco Harbor Lofts",
+        "location": "Stockholm, Sweden",
+        "price": "€890,000",
+        "beds": 3,
+        "baths": 2,
+        "area": 150,
+        "score": 9.2,
+        "roi": "+8.1% ROI",
+        "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80"
+      }
+    ]
+  },
+  "featuresSection": {
+    "title": "Why Choose EcoHaven?",
+    "subtitle": "Built for the next generation of sustainable investors",
+    "features": [
+      { "icon": "🤖", "title": "AI-Powered Match", "description": "Smart recommendations based on your eco values and investment goals." },
+      { "icon": "✅", "title": "Verified Green", "description": "All properties certified for sustainability standards." },
+      { "icon": "📊", "title": "Smart Investment", "description": "Higher ROI with positive planet impact." },
+      { "icon": "🚀", "title": "Future Ready", "description": "Built for tomorrow's sustainable living." }
+    ]
+  },
+  "rightPanel": {
+    "carbon":  { "value": "-2.4", "unit": "Tonnes CO₂/year", "note": "Better than 89% of similar properties", "percent": 89 },
+    "score":   { "value": "9.2", "max": "10", "label": "Excellent", "subScores": [{ "icon": "🌿", "value": 9.0 }, { "icon": "💧", "value": 8.8 }, { "icon": "♻️", "value": 9.5 }, { "icon": "☀️", "value": 9.3 }, { "icon": "💨", "value": 9.1 }] },
+    "trend":   { "value": "+24%", "periodLabel": "Last 12 Months", "points": [28, 38, 32, 52, 46, 64, 72] },
+    "cta":     { "headline": "Ready to Invest Green?", "subtitle": "Let our AI find your perfect eco property match.", "ctaLabel": "Get Started", "image": "" }
+  }
+}

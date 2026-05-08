@@ -1,0 +1,84 @@
+:host { display: block; font-family: 'Inter', system-ui, sans-serif; }
+
+.app-shell {
+  display: grid;
+  /* sidebar | content | right-panel */
+  grid-template-columns: 210px 1fr 280px;
+  grid-template-rows: 60px 1fr;
+  height: 100vh;
+  overflow: hidden;
+  background: #f5f8f5;
+
+  // Sidebar spans full height
+  eh-sidebar {
+    grid-row: 1 / -1;
+    grid-column: 1;
+    overflow-y: auto;
+  }
+
+  // Topbar spans col 2 + 3
+  eh-topbar {
+    grid-row: 1;
+    grid-column: 2 / -1;
+  }
+
+  // Main content
+  .content {
+    grid-row: 2;
+    grid-column: 2;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  // Right panel
+  eh-dashboard-panel {
+    grid-row: 2;
+    grid-column: 3;
+    overflow-y: auto;
+  }
+}
+
+// ── Loading ───────────────────────────────────────────────────
+.eh-loading {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 14px;
+  color: #5a7a68;
+  background: #f5f8f5;
+
+  &__spinner {
+    width: 40px; height: 40px;
+    border: 3px solid rgba(47,163,107,0.2);
+    border-top-color: #2FA36B;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+  }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Responsive ────────────────────────────────────────────────
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 210px 1fr;
+
+    eh-dashboard-panel { display: none; }
+    eh-topbar { grid-column: 2; }
+    .content  { grid-column: 2; }
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60px 1fr;
+
+    eh-sidebar { display: none; }
+    eh-topbar  { grid-column: 1; }
+    .content   { grid-column: 1; }
+  }
+}

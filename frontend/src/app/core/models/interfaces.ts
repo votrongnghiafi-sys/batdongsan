@@ -106,6 +106,7 @@ export interface SectionConfig {
   subtitle?: string;
   description?: string;
   backgroundImage?: string;
+  backgroundColor?: string;
   ctaText?: string;
   ctaLink?: string;
   limit?: number;

@@ -1,11 +1,25 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // Landing page (default)
+  // Landing page (default — existing multi-site system)
   {
     path: '',
     loadComponent: () =>
       import('./features/landing/components/landing.component').then(m => m.LandingComponent),
+  },
+  // Eco 2030 — futuristic eco real estate landing page
+  {
+    path: 'eco-2030',
+    loadComponent: () =>
+      import('./features/eco-landing/components/landing-page.component').then(m => m.LandingPageComponent),
+    title: 'Eco Smart Living 2030',
+  },
+  // EcoHaven — SaaS sidebar dashboard layout
+  {
+    path: 'eco-haven',
+    loadComponent: () =>
+      import('./features/eco-haven/eco-haven-layout.component').then(m => m.EcoHavenLayoutComponent),
+    title: 'EcoHaven — Smart Green Investing',
   },
   // Admin CMS
   {
@@ -23,11 +37,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/sites.component').then(m => m.AdminSitesComponent),
       },
-      {
-        path: 'sections',
-        loadComponent: () =>
-          import('./features/admin/pages/sections.component').then(m => m.AdminSectionsComponent),
-      },
+      // V6: /admin/sections route removed — sections managed by Page Builder
       {
         path: 'properties',
         loadComponent: () =>

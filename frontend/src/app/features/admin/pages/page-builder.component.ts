@@ -5,7 +5,14 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { Subscription } from 'rxjs';
 import { BuilderStateService, LayoutItem } from '../../../core/services/builder-state.service';
 import { AdminService } from '../../../core/services/admin.service';
-import { SECTION_TEMPLATES, SectionTemplate, SECTION_TEMPLATE_MAP } from '../../../core/constants/section-templates';
+import {
+  SECTION_TEMPLATES,
+  SectionTemplate,
+  SectionCategory,
+  SECTION_TEMPLATE_MAP,
+  SECTION_CATEGORY_LABELS,
+  getTemplatesByCategory,
+} from '../../../core/constants/section-templates';
 import { SiteConfigMap } from '../../../core/models/interfaces';
 
 @Component({
@@ -29,12 +36,44 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
   selectedId: string | null = null;
   previewMode = false;
   saving = false;
+  resetting = false;
   msg = '';
   msgType = '';
   showAddModal = false;
 
+  // V7: Upload state
+  uploadingField: string | null = null;
+
+  // V7: Confirm modal state
+  confirmData: {
+    show: boolean;
+    icon: string;
+    title: string;
+    message: string;
+    detail: string;
+    confirmLabel: string;
+    cancelLabel: string;
+    type: 'warning' | 'danger';
+    onConfirm: () => void;
+  } = {
+    show: false, icon: '', title: '', message: '', detail: '',
+    confirmLabel: 'Xác nhận', cancelLabel: 'Hủy', type: 'warning',
+    onConfirm: () => {},
+  };
+
+  // V6: Grouped layout for sidebar
+  layoutGroups: { category: SectionCategory; label: string; items: LayoutItem[] }[] = [];
+
+  // V6: Auto-draft
+  draftTimestamp: string | null = null;
+  private draftInterval: ReturnType<typeof setInterval> | null = null;
+
   // Templates
   readonly templates = SECTION_TEMPLATES;
+  readonly categoryLabels = SECTION_CATEGORY_LABELS;
+
+  // V6: Templates grouped by category for Add Modal
+  readonly templatesByCategory = getTemplatesByCategory();
 
   private subs: Subscription[] = [];
 
@@ -44,12 +83,17 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
       this.siteId = +(params['site_id'] || 0);
       if (this.siteId) {
         this.loadSiteConfig();
+        this.startDraftTimer();
       }
     });
 
     // Subscribe to builder state
     this.subs.push(
-      this.builder.layout$.subscribe(l => { this.layout = l; this.cdr.detectChanges(); }),
+      this.builder.layout$.subscribe(l => {
+        this.layout = l;
+        this.layoutGroups = this.builder.getLayoutGrouped();
+        this.cdr.detectChanges();
+      }),
       this.builder.selectedId$.subscribe(id => { this.selectedId = id; this.cdr.detectChanges(); }),
       this.builder.previewMode$.subscribe(m => { this.previewMode = m; this.cdr.detectChanges(); }),
     );
@@ -57,6 +101,9 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
+    if (this.draftInterval) {
+      clearInterval(this.draftInterval);
+    }
   }
 
   // ---------------------------------------------------------------
@@ -73,7 +120,9 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
       next: (configs: SiteConfigMap) => {
         const homepage = (configs.layout as any)?.homepage || [];
         const sections = (configs as any).sections || {};
-        this.builder.initFromConfig(homepage, sections);
+        const features = (configs as any).features || {};
+        // V6: Pass features to initialize feature sections
+        this.builder.initFromConfig(homepage, sections, features);
         this.cdr.detectChanges();
       },
       error: () => {
@@ -131,9 +180,15 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     const item = this.layout.find(i => i.id === id);
     const label = this.getTemplate(item?.type || '')?.label || id;
-    if (confirm(`Xóa section "${label}"?`)) {
-      this.builder.removeSection(id);
-    }
+    this.showConfirm({
+      icon: '🗑️',
+      title: `Xóa "${label}"?`,
+      message: 'Section này sẽ bị xóa khỏi layout.',
+      detail: 'Bạn có thể thêm lại sau từ menu "Thêm".',
+      confirmLabel: 'Xóa',
+      type: 'danger',
+      onConfirm: () => this.builder.removeSection(id),
+    });
   }
 
   toggleEnabled(id: string, event: Event): void {
@@ -180,7 +235,7 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
   }
 
   // ---------------------------------------------------------------
-  // Save
+  // V6: Save (unified payload)
   // ---------------------------------------------------------------
 
   save(): void {
@@ -188,9 +243,12 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
     this.saving = true;
     this.msg = '';
 
+    const { layout, sections, features } = this.builder.exportForSave();
+
     const configs: any = {
-      layout: { homepage: this.builder.exportLayoutV4() },
-      sections: this.builder.exportSections(),
+      layout,
+      sections,
+      features,
     };
 
     this.admin.updateSiteConfigs(this.siteId, configs).subscribe({
@@ -198,6 +256,8 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
         this.msg = 'Đã lưu thành công!';
         this.msgType = 'ok';
         this.saving = false;
+        this.builder.clearDraft(this.siteId);
+        this.draftTimestamp = null;
         this.cdr.detectChanges();
         setTimeout(() => { this.msg = ''; this.cdr.detectChanges(); }, 3000);
       },
@@ -227,5 +287,172 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
     const template = this.getSelectedTemplate();
     if (!template?.schema) return [];
     return Object.entries(template.schema);
+  }
+
+  // ---------------------------------------------------------------
+  // V7: Confirm Modal
+  // ---------------------------------------------------------------
+
+  /** Show custom confirm modal */
+  private showConfirm(opts: {
+    icon: string; title: string; message: string; detail?: string;
+    confirmLabel?: string; cancelLabel?: string; type?: 'warning' | 'danger';
+    onConfirm: () => void;
+  }): void {
+    this.confirmData = {
+      show: true,
+      icon: opts.icon,
+      title: opts.title,
+      message: opts.message,
+      detail: opts.detail || '',
+      confirmLabel: opts.confirmLabel || 'Xác nhận',
+      cancelLabel: opts.cancelLabel || 'Hủy',
+      type: opts.type || 'warning',
+      onConfirm: opts.onConfirm,
+    };
+    this.cdr.detectChanges();
+  }
+
+  /** Execute confirm action and close modal */
+  onConfirmAccept(): void {
+    this.confirmData.onConfirm();
+    this.confirmData.show = false;
+    this.cdr.detectChanges();
+  }
+
+  /** Cancel and close confirm modal */
+  onConfirmCancel(): void {
+    this.confirmData.show = false;
+    this.cdr.detectChanges();
+  }
+
+  // ---------------------------------------------------------------
+  // V7: File Upload
+  // ---------------------------------------------------------------
+
+  /** Trigger the hidden file input inside an upload zone */
+  triggerFileInput(event: Event): void {
+    const zone = event.currentTarget as HTMLElement;
+    const input = zone.querySelector('input[type="file"]') as HTMLInputElement;
+    if (input) input.click();
+  }
+
+  /** Handle file selection from input */
+  onFileSelect(event: Event, fieldKey: string): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      this.uploadFile(input.files[0], fieldKey);
+      input.value = ''; // Reset to allow re-upload of same file
+    }
+  }
+
+  /** Handle drag-and-drop */
+  onFileDrop(event: DragEvent, fieldKey: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const file = event.dataTransfer?.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      this.uploadFile(file, fieldKey);
+    }
+  }
+
+  /** Upload file to backend and set the URL as field value */
+  private uploadFile(file: File, fieldKey: string): void {
+    if (!this.selectedId || !this.siteId) return;
+
+    // Validate size client-side
+    if (file.size > 5 * 1024 * 1024) {
+      this.msg = 'File quá lớn. Tối đa 5MB.';
+      this.msgType = 'err';
+      this.cdr.detectChanges();
+      setTimeout(() => { this.msg = ''; this.cdr.detectChanges(); }, 3000);
+      return;
+    }
+
+    this.uploadingField = fieldKey;
+    this.cdr.detectChanges();
+
+    const sectionId = this.selectedId;
+    this.admin.uploadFile(this.siteId, file, 'section-bg').subscribe({
+      next: (result) => {
+        this.updateField(sectionId, fieldKey, result.url);
+        this.uploadingField = null;
+        this.msg = 'Đã tải ảnh lên thành công!';
+        this.msgType = 'ok';
+        this.cdr.detectChanges();
+        setTimeout(() => { this.msg = ''; this.cdr.detectChanges(); }, 3000);
+      },
+      error: (err) => {
+        this.uploadingField = null;
+        this.msg = err?.error?.error || 'Lỗi khi tải ảnh lên!';
+        this.msgType = 'err';
+        this.cdr.detectChanges();
+        setTimeout(() => { this.msg = ''; this.cdr.detectChanges(); }, 4000);
+      },
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // Reset to Default
+  // ---------------------------------------------------------------
+
+  /** Reset currently selected section's config to template default */
+  resetSelectedSection(): void {
+    if (!this.selectedId) return;
+    const template = this.getSelectedTemplate();
+    const label = template?.label || this.selectedId;
+    const sectionId = this.selectedId;
+
+    this.showConfirm({
+      icon: '🔄',
+      title: `Đặt lại "${label}"`,
+      message: `Cấu hình của section "${label}" sẽ được khôi phục về giá trị mặc định.`,
+      detail: 'Các thay đổi chưa lưu cho section này sẽ bị mất.',
+      confirmLabel: 'Đặt lại',
+      type: 'warning',
+      onConfirm: () => {
+        this.builder.resetSectionToDefault(sectionId);
+        this.msg = `Đã đặt lại "${label}" về mặc định.`;
+        this.msgType = 'ok';
+        this.cdr.detectChanges();
+        setTimeout(() => { this.msg = ''; this.cdr.detectChanges(); }, 3000);
+      },
+    });
+  }
+
+  /** Reset the entire page builder to default template set */
+  resetAll(): void {
+    this.showConfirm({
+      icon: '⚠️',
+      title: 'Đặt lại toàn bộ trang',
+      message: 'Tất cả sections sẽ được khôi phục về cấu hình mặc định ban đầu.',
+      detail: 'Layout, nội dung đã chỉnh sửa và thứ tự sections sẽ bị xóa. Hành động này không thể hoàn tác.',
+      confirmLabel: 'Đặt lại tất cả',
+      type: 'danger',
+      onConfirm: () => {
+        this.resetting = true;
+        this.builder.resetAllToDefault();
+        this.msg = 'Đã đặt lại toàn bộ về mặc định.';
+        this.msgType = 'ok';
+        this.resetting = false;
+        this.cdr.detectChanges();
+        setTimeout(() => { this.msg = ''; this.cdr.detectChanges(); }, 3000);
+      },
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // V6: Auto-draft
+  // ---------------------------------------------------------------
+
+  private startDraftTimer(): void {
+    // Auto-save draft every 30 seconds
+    this.draftInterval = setInterval(() => {
+      if (this.siteId && this.layout.length > 0) {
+        this.builder.saveDraft(this.siteId);
+        this.draftTimestamp = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        this.cdr.detectChanges();
+      }
+    }, 30000);
   }
 }

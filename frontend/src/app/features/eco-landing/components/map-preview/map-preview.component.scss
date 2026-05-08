@@ -1,0 +1,138 @@
+// ==============================================================
+// Map Preview — matches reference HTML side-by-side layout
+// ==============================================================
+
+:host { display: block; }
+
+.map-section {
+  padding: 90px 6%;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 48px;
+  align-items: center;
+  background: var(--color-bg, #F7FBF8);
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+// ── Left info ─────────────────────────────────────────────────
+.map-info { display: flex; flex-direction: column; gap: 24px; }
+
+.section-head {
+  h2 {
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: var(--color-text, #102018);
+    margin-bottom: 12px;
+  }
+  p { color: #6b7c72; font-size: 17px; line-height: 1.65; }
+}
+
+.btn {
+  padding: 15px 26px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  font-family: inherit;
+  width: fit-content;
+  transition: all 0.25s;
+
+  &-primary {
+    background: var(--color-primary, #2FA36B);
+    color: #fff;
+    box-shadow: 0 14px 36px rgba(47,163,107,0.30);
+
+    &:hover { transform: translateY(-2px); }
+  }
+}
+
+.map-location-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.location-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &__icon { font-size: 1.3rem; }
+  &__label { font-size: 12px; color: #9abaaa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  &__value { font-size: 15px; font-weight: 700; color: var(--color-text, #102018); }
+}
+
+// ── Map canvas ────────────────────────────────────────────────
+.map-canvas {
+  position: relative;
+  height: 420px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 30% 30%, #a8e6c1 0%, transparent 22%),
+    radial-gradient(circle at 72% 62%, #2FA36B 0%, transparent 16%),
+    linear-gradient(135deg, #eef8f1, #dff5e8);
+  box-shadow: 0 24px 80px rgba(20,80,50,0.12);
+  overflow: hidden;
+}
+
+.map-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(47,163,107,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47,163,107,0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+
+// Green zones
+.map-zone {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(47,163,107,0.14);
+  border: 2px solid rgba(47,163,107,0.3);
+
+  &--1 { width: 160px; height: 160px; top: 10%; left: 20%; animation: zoneBreath 5s ease infinite; }
+  &--2 { width: 100px; height: 100px; top: 55%; left: 62%; animation: zoneBreath 5s ease 1.5s infinite; }
+}
+
+@keyframes zoneBreath {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.55; transform: scale(1.08); }
+}
+
+// Markers
+.marker {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--color-primary, #2FA36B);
+  border: 4px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 12px rgba(47,163,107,0.18), 0 4px 16px rgba(47,163,107,0.4);
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:hover { transform: scale(1.3); }
+  &--1 { top: 28%; left: 34%; }
+  &--2 { top: 58%; left: 70%; }
+  &--3 { top: 72%; left: 42%; }
+}
+
+.map-watermark {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(47,163,107,0.4);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+}

@@ -1,0 +1,51 @@
+<section class="ai-section" id="section-ai">
+  <div class="ai-box glass-panel" id="ai-advisor-box">
+    <div class="ai-icon">🤖</div>
+    <div class="ai-body">
+      <h2>{{ section.title }}</h2>
+      <p>
+        Hệ thống phân tích ngân sách, phong cách sống, mục tiêu đầu tư,
+        khả năng cho thuê và hạ tầng để đề xuất dự án phù hợp nhất.
+      </p>
+
+      <!-- Quick preference chips -->
+      <div class="ai-prefs">
+        <div class="pref-group">
+          <span class="pref-label">💰 Ngân sách</span>
+          <div class="chip-list">
+            <button *ngFor="let b of budgets" class="chip" [class.chip--active]="selectedBudget === b"
+              type="button" (click)="selectedBudget = b">{{ b }}</button>
+          </div>
+        </div>
+        <div class="pref-group">
+          <span class="pref-label">🎯 Mục tiêu</span>
+          <div class="chip-list">
+            <button *ngFor="let g of goals" class="chip" [class.chip--active]="selectedGoal === g"
+              type="button" (click)="selectedGoal = g">{{ g }}</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" type="button" id="btn-ai-suggest"
+        [disabled]="!selectedBudget || !selectedGoal" (click)="suggest()">
+        ✨ Nhận đề xuất AI
+      </button>
+
+      <!-- Result -->
+      <div class="ai-result" *ngIf="result">
+        <div class="ai-result__item" *ngFor="let r of result; let i = index"
+          [style.animation-delay]="(i * 0.15) + 's'" [id]="'ai-result-' + i">
+          <span>{{ r.icon }}</span> {{ r.text }}
+        </div>
+      </div>
+
+      <!-- Typing -->
+      <div class="ai-typing" *ngIf="loading">
+        <div class="ai-typing__dot"></div>
+        <div class="ai-typing__dot"></div>
+        <div class="ai-typing__dot"></div>
+        <span>AI đang phân tích...</span>
+      </div>
+    </div>
+  </div>
+</section>

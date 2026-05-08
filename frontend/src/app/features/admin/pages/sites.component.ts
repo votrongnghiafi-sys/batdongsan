@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
 import { AiThemeService, AiPalette } from '../../../core/services/ai-theme.service';
 import { THEME_PRESETS, ThemePreset } from '../../../core/constants/theme-presets';
 import { SiteConfigMap } from '../../../core/models/interfaces';
 
-type TabKey = 'general' | 'branding' | 'theme' | 'contact' | 'project' | 'lead' | 'features' | 'layout' | 'sections' | 'seo';
+type TabKey = 'general' | 'branding' | 'theme' | 'contact' | 'project' | 'lead' | 'seo';
 
 interface Tab {
   key: TabKey;
@@ -53,6 +53,7 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   // Preview
   previewColors = { primary: '#0A84FF', secondary: '#30D158', bg: '#08080f', text: '#f0f0f5' };
 
+  // V6: Removed features, layout, sections tabs — now in Page Builder
   readonly tabs: Tab[] = [
     { key: 'general',  label: 'Tổng quan',  icon: '⚙️' },
     { key: 'branding', label: 'Thương hiệu', icon: '🏷️' },
@@ -60,9 +61,6 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
     { key: 'contact',  label: 'Liên hệ',     icon: '📞' },
     { key: 'project',  label: 'Dự án',       icon: '🏗️' },
     { key: 'lead',     label: 'Lead',        icon: '📝' },
-    { key: 'features', label: 'Tính năng',   icon: '🔧' },
-    { key: 'layout',   label: 'Bố cục',      icon: '📐' },
-    { key: 'sections', label: 'Nội dung',     icon: '🧩' },
     { key: 'seo',      label: 'SEO',         icon: '🔍' },
   ];
 
@@ -73,24 +71,9 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   contactForm!: FormGroup;
   projectForm!: FormGroup;
   leadForm!: FormGroup;
-  featuresForm!: FormGroup;
-  layoutForm!: FormGroup;
   seoForm!: FormGroup;
 
-  // V4: Section-level config
-  sectionsData: Record<string, any> = {};
-  expandedSection: string | null = null;
-
-  // Available sections for layout builder
-  readonly availableSections = [
-    { key: 'hero', label: 'Hero Banner' },
-    { key: 'about', label: 'Giới thiệu' },
-    { key: 'property-list', label: 'Danh sách BĐS' },
-    { key: 'amenities', label: 'Tiện ích' },
-    { key: 'gallery', label: 'Thư viện ảnh' },
-    { key: 'location', label: 'Vị trí' },
-    { key: 'lead-form', label: 'Form liên hệ' },
-  ];
+  // V6: Features, layout, sectionsData — now managed by Page Builder
 
   ngOnInit(): void {
     this.initForms();
@@ -156,19 +139,7 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
       successMessage: ['Cảm ơn bạn, chuyên viên sẽ liên hệ sớm.'],
     });
 
-    this.featuresForm = this.fb.group({
-      chatbot: [false],
-      aiAnalysis: [false],
-      booking: [false],
-      gallery: [true],
-      propertyFilter: [true],
-      leadForm: [true],
-      map: [true],
-    });
-
-    this.layoutForm = this.fb.group({
-      homepage: this.fb.array([]),
-    });
+    // V6: featuresForm and layoutForm removed — managed by Page Builder
 
     this.seoForm = this.fb.group({
       metaTitle: ['', Validators.maxLength(70)],
@@ -189,10 +160,6 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
         text: val.textColor || '#f0f0f5',
       };
     });
-  }
-
-  get homepageSections(): FormArray {
-    return this.layoutForm.get('homepage') as FormArray;
   }
 
   // ---------------------------------------------------------------
@@ -228,52 +195,11 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
     if (configs.contact) this.contactForm.patchValue(configs.contact);
     if (configs.project) this.projectForm.patchValue(configs.project);
     if (configs.lead) this.leadForm.patchValue(configs.lead);
-    if (configs.features) this.featuresForm.patchValue(configs.features);
     if (configs.seo) this.seoForm.patchValue(configs.seo);
-
-    // Layout — rebuild FormArray
-    const homepage = configs.layout?.homepage || [];
-    this.homepageSections.clear();
-    homepage.forEach(s => this.homepageSections.push(new FormControl(s)));
-
-    // V4: Sections config
-    if ((configs as any).sections) {
-      this.sectionsData = { ...(configs as any).sections };
-    }
+    // V6: features, layout, sections — loaded exclusively by Page Builder
   }
 
-  // ---------------------------------------------------------------
-  // Layout Builder
-  // ---------------------------------------------------------------
-  addSection(sectionKey: string): void {
-    if (!this.homepageSections.value.includes(sectionKey)) {
-      this.homepageSections.push(new FormControl(sectionKey));
-    }
-  }
-
-  removeSection(index: number): void {
-    this.homepageSections.removeAt(index);
-  }
-
-  moveSection(index: number, direction: 'up' | 'down'): void {
-    const arr = this.homepageSections;
-    const target = direction === 'up' ? index - 1 : index + 1;
-    if (target < 0 || target >= arr.length) return;
-
-    const current = arr.at(index).value;
-    const swap = arr.at(target).value;
-    arr.at(index).setValue(swap);
-    arr.at(target).setValue(current);
-  }
-
-  getSectionLabel(key: string): string {
-    return this.availableSections.find(s => s.key === key)?.label || key;
-  }
-
-  getUnusedSections(): { key: string; label: string }[] {
-    const used = new Set(this.homepageSections.value);
-    return this.availableSections.filter(s => !used.has(s.key));
-  }
+  // V6: Layout builder methods removed — now in Page Builder
 
   // ---------------------------------------------------------------
   // Save
@@ -310,20 +236,15 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         const siteId = this.editId || res.id;
 
-        // Step 2: Save config groups
+        // Step 2: Save config groups (V6: features/layout/sections managed by Page Builder)
         const configs: Partial<SiteConfigMap> = {
           branding: this.brandingForm.value,
           theme: this.themeForm.value,
           contact: this.contactForm.value,
           project: this.projectForm.value,
           lead: this.leadForm.value,
-          features: this.featuresForm.value,
-          layout: { homepage: this.homepageSections.value },
           seo: this.seoForm.value,
         };
-
-        // V4: Include sections config
-        (configs as any).sections = this.sectionsData;
 
         this.admin.updateSiteConfigs(siteId, configs).subscribe({
           next: () => {

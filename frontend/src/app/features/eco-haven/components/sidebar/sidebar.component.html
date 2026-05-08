@@ -1,0 +1,59 @@
+<aside class="sidebar">
+  <!-- Logo -->
+  <div class="sidebar__logo">
+    <span class="sidebar__logo-icon">🌿</span>
+    <div>
+      <div class="sidebar__logo-name">{{ data.logo }}</div>
+      <div class="sidebar__logo-tag">{{ data.tagline }}</div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="sidebar__nav">
+    <ul class="menu">
+      <li
+        *ngFor="let item of data.menu; let i = index"
+        class="menu__item"
+        [class.active]="i === activeItem"
+        [id]="'menu-item-' + i"
+        (click)="setActive(i)">
+        <span class="menu__icon">{{ item.icon }}</span>
+        <span class="menu__label">{{ item.label }}</span>
+        <span class="menu__badge" *ngIf="item.badge && item.badge > 0">{{ item.badge }}</span>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- AI Box -->
+  <div class="ai-box">
+    <div class="ai-box__dot"></div>
+    <h4 class="ai-box__title">{{ data.aiBox.title }}</h4>
+    <p class="ai-box__desc">
+      <strong>{{ data.aiBox.matchCount }}</strong> properties matched your eco goals
+    </p>
+    <button class="ai-box__btn" id="sidebar-ai-cta" type="button">
+      {{ data.aiBox.ctaLabel }}
+    </button>
+  </div>
+
+  <!-- Impact This Month -->
+  <div class="impact-section">
+    <h5 class="impact-section__title">{{ data.impactTitle }}</h5>
+    <div class="impact-list">
+      <div class="impact-row" *ngFor="let stat of data.impactStats">
+        <span class="impact-row__icon">{{ stat.icon }}</span>
+        <div class="impact-row__info">
+          <span class="impact-row__label">{{ stat.label }}</span>
+          <span class="impact-row__value">{{ stat.value }}</span>
+        </div>
+        <span class="impact-row__change" [class.positive]="stat.positive" [class.negative]="!stat.positive">
+          {{ stat.change }}
+        </span>
+      </div>
+    </div>
+    <button class="impact-section__link" id="sidebar-impact-report" type="button">
+      {{ data.viewImpactLabel }}
+    </button>
+  </div>
+
+</aside>

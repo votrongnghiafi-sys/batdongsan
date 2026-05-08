@@ -1,0 +1,12 @@
+<section class="features" id="section-features">
+  <h2 class="features__title">{{ title }}</h2>
+  <div class="features__strip">
+    <div class="feat" *ngFor="let f of features; let i = index" [id]="'feat-' + i">
+      <span class="feat__icon">{{ f.icon }}</span>
+      <div>
+        <div class="feat__title">{{ f.title }}</div>
+        <div class="feat__desc">{{ f.description }}</div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,72 @@
+<section class="hero" id="section-hero">
+  <nav class="navbar">
+    <div class="logo">{{ branding?.logoText || 'EcoEstate 2030' }}</div>
+    <ul class="nav-links">
+      <li><a href="#section-properties">Dự án</a></li>
+      <li><a href="#section-analytics">Dữ liệu xanh</a></li>
+      <li><a href="#section-map">Bản đồ</a></li>
+      <li><a href="#section-lead-form">Tư vấn</a></li>
+    </ul>
+    <a class="nav-cta" [href]="'tel:' + contact?.phone" id="navbar-phone">
+      {{ contact?.phone }}
+    </a>
+  </nav>
+
+  <div class="hero-grid">
+    <!-- Left: headline + CTAs -->
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge__dot"></span>
+        Nền tảng bất động sản xanh #1 Việt Nam
+      </div>
+
+      <h1>{{ section.title }}</h1>
+      <p>{{ section.subtitle }}</p>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="hero-cta-projects" type="button" (click)="scrollTo('section-properties')">
+          Xem dự án
+        </button>
+        <button class="btn btn-light" id="hero-cta-consult" type="button" (click)="scrollTo('section-lead-form')">
+          Tư vấn ngay
+        </button>
+      </div>
+    </div>
+
+    <!-- Right: glass dashboard -->
+    <div class="hero-dashboard glass-panel" *ngIf="stats">
+      <div class="dashboard-title">Green Investment Dashboard</div>
+
+      <div class="stat-list">
+        <div class="stat-card" id="hero-stat-energy">
+          <div class="stat-card__left">
+            <span class="stat-card__icon">⚡</span>
+            <span class="stat-card__label">Energy Saving</span>
+          </div>
+          <strong class="stat-card__value">{{ stats.energySaving }}</strong>
+        </div>
+
+        <div class="stat-card" id="hero-stat-co2">
+          <div class="stat-card__left">
+            <span class="stat-card__icon">🌿</span>
+            <span class="stat-card__label">CO₂ Reduction</span>
+          </div>
+          <strong class="stat-card__value">{{ stats.co2Reduction }}</strong>
+        </div>
+
+        <div class="stat-card" id="hero-stat-smart">
+          <div class="stat-card__left">
+            <span class="stat-card__icon">🤖</span>
+            <span class="stat-card__label">Smart Home Score</span>
+          </div>
+          <strong class="stat-card__value">{{ stats.smartHomeScore }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator">
+    <div class="scroll-indicator__dot"></div>
+  </div>
+</section>

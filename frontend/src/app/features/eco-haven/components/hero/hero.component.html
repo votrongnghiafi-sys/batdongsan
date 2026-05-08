@@ -1,0 +1,59 @@
+<!-- HERO: 2-column inside main content — left text | center building image -->
+<section class="hero" id="section-hero">
+
+  <!-- LEFT: Headline + CTA -->
+  <div class="hero-left">
+    <div class="hero-badge">
+      <span class="hero-badge__dot"></span>
+      AI-Powered Green Real Estate
+    </div>
+
+    <h1 class="hero-headline">
+      {{ hero.headline }}<br>
+      <span class="hero-highlight">{{ hero.headlineHighlight }}</span>
+    </h1>
+
+    <p class="hero-sub">{{ hero.subtitle }}</p>
+
+    <div class="hero-actions">
+      <button class="btn btn-primary" id="hero-cta-explore" type="button">
+        {{ hero.ctaPrimary }}
+        <span class="btn-icon">+</span>
+      </button>
+      <button class="btn btn-ghost" id="hero-cta-learn" type="button">
+        {{ hero.ctaSecondary }}
+      </button>
+    </div>
+
+    <div class="hero-social-proof">
+      <div class="avatar-stack">
+        <span class="av">EG</span>
+        <span class="av">JL</span>
+        <span class="av">MO</span>
+      </div>
+      <span>{{ hero.socialProof }}</span>
+    </div>
+  </div>
+
+  <!-- CENTER: Eco building photo + floating tags -->
+  <div class="hero-center">
+    <div class="hero-building">
+      <img [src]="hero.buildingImage" alt="Eco Building" class="building-photo" />
+      <div class="building-glow"></div>
+
+      <!-- Floating tags from config -->
+      <div
+        *ngFor="let tag of hero.floatingTags; let i = index"
+        class="floating-tag"
+        [class]="'floating-tag--' + tag.pos"
+        [id]="'hero-tag-' + i">
+        <span class="floating-tag__icon">{{ tag.icon }}</span>
+        <div>
+          <div class="floating-tag__label">{{ tag.label }}</div>
+          <div class="floating-tag__sub" *ngIf="tag.subLabel">{{ tag.subLabel }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>

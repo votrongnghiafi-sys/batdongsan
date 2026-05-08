@@ -116,4 +116,17 @@ export class AdminService {
   deleteLead(id: number): Observable<any> {
     return this.extract(this.http.delete(`/api/admin/leads.php?id=${id}`));
   }
+
+  // =============================================================
+  // File Upload
+  // =============================================================
+
+  /** Upload a file (background image, etc.) */
+  uploadFile(siteId: number, file: File, context: string = 'section-bg'): Observable<{url: string; filename: string; size: number; mime: string}> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('site_id', String(siteId));
+    formData.append('context', context);
+    return this.extract(this.http.post('/api/admin/upload.php', formData));
+  }
 }

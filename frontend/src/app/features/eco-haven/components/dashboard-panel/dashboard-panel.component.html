@@ -1,0 +1,107 @@
+<aside class="right-panel" *ngIf="data">
+
+  <!-- ① Carbon Footprint -->
+  <div class="panel-card" id="card-carbon">
+    <div class="panel-card__header">
+      <span class="panel-card__title">Carbon Footprint</span>
+    </div>
+
+    <!-- Dashed ring + center value -->
+    <div class="donut-wrap">
+      <svg class="donut-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- Track (dashed) -->
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#e2ede8" stroke-width="8"
+          stroke-dasharray="5 4" transform="rotate(-90 60 60)"/>
+        <!-- Green arc (low carbon = good = green fill for the "saved" part) -->
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#2FA36B" stroke-width="8"
+          stroke-dasharray="5 4" stroke-dashoffset="0" transform="rotate(-90 60 60)"
+          opacity="0.9"/>
+      </svg>
+      <div class="donut-center">
+        <div class="donut-value">{{ data.carbon.value }}</div>
+        <div class="donut-unit">Tonnes CO₂</div>
+      </div>
+    </div>
+
+    <p class="panel-card__unit">{{ data.carbon.unit }}</p>
+    <p class="panel-card__note">{{ data.carbon.note }}</p>
+    <a class="panel-card__link" href="#">View Details →</a>
+  </div>
+
+  <!-- ② Sustainability Score -->
+  <div class="panel-card" id="card-score">
+    <div class="panel-card__header">
+      <span class="panel-card__title">Sustainability Score</span>
+    </div>
+
+    <!-- Ring chart -->
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#e2ede8" stroke-width="10"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#2FA36B" stroke-width="10"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="scoreDash + ' ' + scoreGap"
+          transform="rotate(-90 60 60)"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-score">{{ data.score.value }}</div>
+        <div class="ring-max">/ {{ data.score.max }}</div>
+        <div class="ring-label">{{ data.score.label }}</div>
+      </div>
+    </div>
+
+    <!-- Sub-scores -->
+    <div class="sub-scores">
+      <div class="sub-score" *ngFor="let s of data.score.subScores">
+        <span class="sub-score__icon">{{ s.icon }}</span>
+        <span class="sub-score__val">{{ s.value }}</span>
+      </div>
+    </div>
+    <a class="panel-card__link" href="#">View Full Breakdown →</a>
+  </div>
+
+  <!-- ③ Market Trend -->
+  <div class="panel-card" id="card-trend">
+    <div class="panel-card__header">
+      <span class="panel-card__title">Market Trend</span>
+      <span class="panel-card__period">{{ data.trend.periodLabel }}</span>
+    </div>
+
+    <!-- SVG line chart -->
+    <div class="chart-wrap">
+      <svg class="trend-svg" viewBox="0 0 220 64" preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2FA36B" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#2FA36B" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- Area fill -->
+        <polygon
+          [attr.points]="'0,64 ' + trendPoints + ' 220,64'"
+          fill="url(#trendGrad)"/>
+        <!-- Line -->
+        <polyline
+          [attr.points]="trendPoints"
+          fill="none" stroke="#2FA36B" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="trend-value">{{ data.trend.value }}</div>
+    <p class="trend-sub">Eco properties value increase</p>
+    <a class="panel-card__link" href="#">View Market Insights →</a>
+  </div>
+
+  <!-- ④ CTA card -->
+  <div class="cta-card" id="card-cta"
+    [style.background-image]="'url(' + data.cta.image + ')'">
+    <div class="cta-card__overlay">
+      <h4>{{ data.cta.headline }}</h4>
+      <p>{{ data.cta.subtitle }}</p>
+      <button type="button" id="panel-cta-btn">{{ data.cta.ctaLabel }}</button>
+    </div>
+  </div>
+
+</aside>

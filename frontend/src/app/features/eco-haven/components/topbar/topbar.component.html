@@ -1,0 +1,44 @@
+<header class="topbar">
+  <!-- Nav links -->
+  <nav class="topbar__nav" *ngIf="data.navLinks?.length">
+    <a
+      *ngFor="let link of data.navLinks"
+      class="topbar__nav-link"
+      [class.active]="link.active"
+      href="#">
+      {{ link.label }}
+    </a>
+  </nav>
+
+  <!-- Search -->
+  <div class="topbar__search-wrap">
+    <span class="topbar__search-icon">🔍</span>
+    <input
+      class="topbar__search"
+      type="text"
+      [placeholder]="data.searchPlaceholder"
+      id="topbar-search" />
+    <button class="topbar__search-btn" type="button" id="topbar-search-btn">🔍</button>
+  </div>
+
+  <!-- Right side -->
+  <div class="topbar__right">
+    <!-- Notification bell -->
+    <button class="topbar__notif" id="topbar-notif" type="button">
+      🔔
+      <span class="topbar__notif-badge" *ngIf="data.notifications > 0">
+        {{ data.notifications }}
+      </span>
+    </button>
+
+    <!-- User -->
+    <div class="topbar__user" id="topbar-user">
+      <div class="topbar__avatar">{{ data.user.avatarInitials }}</div>
+      <div class="topbar__user-info">
+        <span class="topbar__user-name">{{ data.user.name }}</span>
+        <span class="topbar__user-role">{{ data.user.role }}</span>
+      </div>
+      <span class="topbar__caret">▾</span>
+    </div>
+  </div>
+</header>

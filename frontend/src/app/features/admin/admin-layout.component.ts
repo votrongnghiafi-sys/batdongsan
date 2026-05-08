@@ -19,9 +19,6 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
           <a routerLink="/admin/sites" routerLinkActive="adm__link--active" class="adm__link" (click)="sidebarOpen=false">
             <span>🌐</span><span>Sites</span>
           </a>
-          <a routerLink="/admin/sections" routerLinkActive="adm__link--active" class="adm__link" (click)="sidebarOpen=false">
-            <span>📄</span><span>Nội dung</span>
-          </a>
           <a routerLink="/admin/properties" routerLinkActive="adm__link--active" class="adm__link" (click)="sidebarOpen=false">
             <span>🏠</span><span>Sản phẩm</span>
           </a>

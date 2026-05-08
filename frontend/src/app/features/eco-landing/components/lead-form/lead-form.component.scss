@@ -1,0 +1,167 @@
+// ==============================================================
+// Lead Form — matches reference HTML (centered glass card)
+// ==============================================================
+
+:host { display: block; }
+
+.lead-section {
+  padding: 90px 6%;
+  background: var(--color-bg, #F7FBF8);
+}
+
+.glass-panel {
+  background: rgba(255,255,255,0.82);
+  border: 1px solid rgba(255,255,255,0.85);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-radius: 24px;
+  box-shadow: 0 24px 80px rgba(20,80,50,0.12);
+}
+
+.lead-form {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+// ── Section head ──────────────────────────────────────────────
+.section-head {
+  margin-bottom: 28px;
+
+  h2 {
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: var(--color-text, #102018);
+    margin-bottom: 10px;
+  }
+
+  p { color: #6b7c72; font-size: 16px; line-height: 1.65; }
+}
+
+// ── Form grid ─────────────────────────────────────────────────
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1.5px solid rgba(47,163,107,0.18);
+  border-radius: 16px;
+  padding: 15px 16px;
+  font-family: inherit;
+  font-size: 14.5px;
+  color: var(--color-text, #102018);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder { color: #b0c4ba; }
+
+  &:focus {
+    border-color: var(--color-primary, #2FA36B);
+    box-shadow: 0 0 0 3px rgba(47,163,107,0.12);
+  }
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%232FA36B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+textarea {
+  grid-column: span 2;
+  min-height: 120px;
+  resize: vertical;
+
+  @media (max-width: 640px) { grid-column: span 1; }
+}
+
+// ── Submit ────────────────────────────────────────────────────
+.submit-area {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 16px 32px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.25s;
+
+  &-primary {
+    background: var(--color-primary, #2FA36B);
+    color: #fff;
+    box-shadow: 0 14px 36px rgba(47,163,107,0.30);
+
+    &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 20px 44px rgba(47,163,107,0.4); }
+    &:disabled { opacity: 0.45; cursor: not-allowed; }
+  }
+}
+
+// Loading dots
+.loading-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+
+  span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    animation: loadBounce 1.2s ease infinite;
+
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+  }
+}
+
+@keyframes loadBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(-4px); }
+}
+
+// ── Honeypot ──────────────────────────────────────────────────
+.honeypot {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+}
+
+// ── Success state ─────────────────────────────────────────────
+.lead-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+  text-align: center;
+
+  &__icon { font-size: 3.5rem; animation: popIn 0.5s ease; }
+
+  h3 { font-size: 1.5rem; font-weight: 800; color: var(--color-primary, #2FA36B); }
+  p  { color: #6b7c72; font-size: 15px; }
+}
+
+@keyframes popIn {
+  from { transform: scale(0); }
+  60%  { transform: scale(1.18); }
+  to   { transform: scale(1); }
+}

@@ -1,0 +1,103 @@
+// ==============================================================
+// Landing Page Wrapper — global page styles
+// ==============================================================
+
+:host { display: block; font-family: 'Inter', system-ui, sans-serif; }
+
+.page { overflow: hidden; }
+
+// ── Footer ────────────────────────────────────────────────────
+.eco-footer {
+  background: linear-gradient(135deg, #0f2a1a 0%, #102018 100%);
+  padding: 40px 6%;
+
+  &__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  &__logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+
+  &__slogan {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 4px;
+  }
+
+  &__copy {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+  }
+}
+
+// ── Floating CTA ──────────────────────────────────────────────
+.floating-contact {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  background: var(--color-primary, #2FA36B);
+  color: #fff;
+  border-radius: 999px;
+  padding: 16px 22px;
+  box-shadow: 0 18px 50px rgba(47,163,107,0.38);
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+  z-index: 99;
+  transition: all 0.25s;
+  animation: floatPulse 3s ease infinite;
+
+  &:hover { transform: translateY(-3px); box-shadow: 0 24px 60px rgba(47,163,107,0.5); }
+}
+
+@keyframes floatPulse {
+  0%, 100% { box-shadow: 0 18px 50px rgba(47,163,107,0.38); }
+  50%       { box-shadow: 0 18px 50px rgba(47,163,107,0.6); }
+}
+
+// ── Loading / Error ────────────────────────────────────────────
+.eco-loading {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #F7FBF8;
+  font-size: 14px;
+  color: #6b7c72;
+
+  &__spinner {
+    width: 44px;
+    height: 44px;
+    border: 3px solid rgba(47,163,107,0.2);
+    border-top-color: #2FA36B;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+.eco-error {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  background: #F7FBF8;
+
+  span { font-size: 3rem; }
+  h2   { font-size: 1.4rem; font-weight: 800; color: #102018; }
+  p    { color: #6b7c72; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

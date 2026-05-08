@@ -1,5 +1,5 @@
 <!-- ================================================================
-     V5: Visual Page Builder
+     V6: Unified Page Builder
      ================================================================ -->
 <div class="pb">
 
@@ -10,6 +10,12 @@
       <h2 class="pb-header__title">📐 Page Builder — {{ siteName || 'Site #' + siteId }}</h2>
     </div>
     <div class="pb-header__right">
+      @if (draftTimestamp) {
+        <span class="pb-draft-status">💾 Nháp lưu lúc {{ draftTimestamp }}</span>
+      }
+      <button class="pb-btn pb-btn--warning" (click)="resetAll()" title="Đặt lại toàn bộ về mặc định">
+        🔄 Mặc định
+      </button>
       <button class="pb-btn pb-btn--outline" (click)="togglePreview()">
         {{ previewMode ? '✏️ Chỉnh sửa' : '👁️ Xem trước' }}
       </button>
@@ -28,7 +34,7 @@
 
   <div class="pb-body">
 
-    <!-- ==================== LEFT: Section List =================== -->
+    <!-- ==================== LEFT: Section List (Grouped) =================== -->
     <aside class="pb-sidebar">
       <div class="pb-sidebar__header">
         <span class="pb-sidebar__title">Sections</span>
@@ -37,39 +43,50 @@
         </button>
       </div>
 
-      <!-- Drag & Drop List -->
+      <!-- V6: Grouped Drag & Drop List -->
       <div class="pb-section-list" cdkDropList (cdkDropListDropped)="onDrop($event)">
-        @for (item of layout; track item.id; let i = $index) {
-          <div class="pb-section-item"
-               cdkDrag
-               [class.pb-section-item--selected]="selectedId === item.id"
-               [class.pb-section-item--disabled]="!isEnabled(item.id)"
-               (click)="selectSection(item.id)">
-
-            <!-- Drag Handle -->
-            <span class="pb-section-item__handle" cdkDragHandle>⣿</span>
-
-            <!-- Info -->
-            <div class="pb-section-item__info">
-              <span class="pb-section-item__icon">{{ getTemplate(item.type)?.icon || '📦' }}</span>
-              <span class="pb-section-item__name">{{ getTemplate(item.type)?.label || item.type }}</span>
-              @if (!isEnabled(item.id)) {
-                <span class="pb-section-item__badge pb-section-item__badge--off">Ẩn</span>
-              }
-            </div>
-
-            <!-- Actions -->
-            <div class="pb-section-item__actions">
-              <button class="pb-icon-btn" title="Bật/tắt" (click)="toggleEnabled(item.id, $event)">
-                {{ isEnabled(item.id) ? '👁️' : '🚫' }}
-              </button>
-              <button class="pb-icon-btn" title="Nhân bản" (click)="duplicateSection(item.id, $event)">📋</button>
-              <button class="pb-icon-btn pb-icon-btn--danger" title="Xóa" (click)="removeSection(item.id, $event)">🗑️</button>
-            </div>
-
-            <!-- Drag Preview -->
-            <div *cdkDragPlaceholder class="pb-section-placeholder"></div>
+        @for (group of layoutGroups; track group.category) {
+          <div class="pb-category-header">
+            <span class="pb-category-header__label">{{ group.label }}</span>
+            <span class="pb-category-header__count">{{ group.items.length }}</span>
           </div>
+
+          @for (item of group.items; track item.id; let i = $index) {
+            <div class="pb-section-item"
+                 cdkDrag
+                 [class.pb-section-item--selected]="selectedId === item.id"
+                 [class.pb-section-item--disabled]="!isEnabled(item.id)"
+                 [class.pb-section-item--feature]="getTemplate(item.type)?.isFeature"
+                 (click)="selectSection(item.id)">
+
+              <!-- Drag Handle -->
+              <span class="pb-section-item__handle" cdkDragHandle>⣿</span>
+
+              <!-- Info -->
+              <div class="pb-section-item__info">
+                <span class="pb-section-item__icon">{{ getTemplate(item.type)?.icon || '📦' }}</span>
+                <span class="pb-section-item__name">{{ getTemplate(item.type)?.label || item.type }}</span>
+                @if (!isEnabled(item.id)) {
+                  <span class="pb-section-item__badge pb-section-item__badge--off">Ẩn</span>
+                }
+                @if (getTemplate(item.type)?.isFeature) {
+                  <span class="pb-section-item__badge pb-section-item__badge--feature">Feature</span>
+                }
+              </div>
+
+              <!-- Actions -->
+              <div class="pb-section-item__actions">
+                <button class="pb-icon-btn" title="Bật/tắt" (click)="toggleEnabled(item.id, $event)">
+                  {{ isEnabled(item.id) ? '👁️' : '🚫' }}
+                </button>
+                <button class="pb-icon-btn" title="Nhân bản" (click)="duplicateSection(item.id, $event)">📋</button>
+                <button class="pb-icon-btn pb-icon-btn--danger" title="Xóa" (click)="removeSection(item.id, $event)">🗑️</button>
+              </div>
+
+              <!-- Drag Preview -->
+              <div *cdkDragPlaceholder class="pb-section-placeholder"></div>
+            </div>
+          }
         }
       </div>
 
@@ -89,6 +106,9 @@
                 <div class="pb-preview__section">
                   <div class="pb-preview__section-label">
                     {{ getTemplate(item.type)?.icon }} {{ getTemplate(item.type)?.label }}
+                    @if (getTemplate(item.type)?.isFeature) {
+                      <span class="pb-preview__feature-badge">Feature</span>
+                    }
                   </div>
                   <div class="pb-preview__section-body">
                     @if (getConfig(item.id)['title']) {
@@ -114,6 +134,12 @@
               <span class="pb-editor__icon">{{ getSelectedTemplate()?.icon }}</span>
               <h3 class="pb-editor__title">{{ getSelectedTemplate()?.label || selectedId }}</h3>
               <span class="pb-editor__id">ID: {{ selectedId }}</span>
+              @if (getSelectedTemplate()?.isFeature) {
+                <span class="pb-editor__feature-badge">Feature</span>
+              }
+              <button class="pb-btn pb-btn--sm pb-btn--reset" (click)="resetSelectedSection()" title="Đặt lại section này về mặc định">
+                🔄 Mặc định
+              </button>
             </div>
 
             <!-- Enabled Toggle -->
@@ -169,10 +195,51 @@
                         </label>
                       }
                       @case ('image') {
-                        <input class="pb-field__input" type="text"
-                          [placeholder]="'/uploads/hero.jpg'"
-                          [value]="getSelectedConfig()[entry[0]] || ''"
-                          (input)="updateField(selectedId, entry[0], $any($event.target).value)">
+                        <!-- V7: Image Upload with Preview -->
+                        <div class="pb-field__upload-group">
+                          @if (getSelectedConfig()[entry[0]]) {
+                            <div class="pb-field__preview">
+                              <img [src]="'' + getSelectedConfig()[entry[0]]" alt="Preview" class="pb-field__preview-img">
+                              <button class="pb-field__preview-remove" title="Xóa ảnh"
+                                (click)="updateField(selectedId, entry[0], '')">✕</button>
+                            </div>
+                          }
+                          <div class="pb-field__upload-zone"
+                               (click)="triggerFileInput($event)"
+                               (dragover)="$event.preventDefault(); $event.stopPropagation()"
+                               (drop)="onFileDrop($event, entry[0])">
+                            <input type="file" class="pb-field__file-input" accept="image/*"
+                              (change)="onFileSelect($event, entry[0])" hidden>
+                            @if (uploadingField === entry[0]) {
+                              <span class="pb-field__upload-status">⏳ Đang tải lên...</span>
+                            } @else {
+                              <span class="pb-field__upload-icon">📤</span>
+                              <span class="pb-field__upload-text">Kéo thả hoặc nhấn để chọn ảnh</span>
+                              <span class="pb-field__upload-hint">JPEG, PNG, WebP — tối đa 5MB</span>
+                            }
+                          </div>
+                          <!-- Manual URL input fallback -->
+                          <input class="pb-field__input pb-field__input--sm" type="text"
+                            placeholder="hoặc nhập URL ảnh..."
+                            [value]="getSelectedConfig()[entry[0]] || ''"
+                            (input)="updateField(selectedId, entry[0], $any($event.target).value)">
+                        </div>
+                      }
+                      @case ('color') {
+                        <!-- V7: Color Picker -->
+                        <div class="pb-field__color-group">
+                          <input class="pb-field__color-picker" type="color"
+                            [value]="'' + (getSelectedConfig()[entry[0]] || '#1a1a2e')"
+                            (input)="updateField(selectedId, entry[0], $any($event.target).value)">
+                          <input class="pb-field__input pb-field__input--color" type="text"
+                            [placeholder]="entry[1].placeholder || '#1a1a2e'"
+                            [value]="getSelectedConfig()[entry[0]] || ''"
+                            (input)="updateField(selectedId, entry[0], $any($event.target).value)">
+                          @if (getSelectedConfig()[entry[0]]) {
+                            <button class="pb-field__color-clear" title="Xóa màu"
+                              (click)="updateField(selectedId, entry[0], '')">✕</button>
+                          }
+                        </div>
                       }
                     }
                   </div>
@@ -193,26 +260,71 @@
   </div>
 </div>
 
-<!-- ==================== Add Section Modal =================== -->
+<!-- ==================== Add Section Modal (V6: Grouped) =================== -->
 @if (showAddModal) {
   <div class="pb-modal-overlay" (click)="showAddModal = false">
     <div class="pb-modal" (click)="$event.stopPropagation()">
       <h3 class="pb-modal__title">Thêm Section</h3>
-      <div class="pb-modal__grid">
-        @for (t of templates; track t.type) {
-          <button class="pb-template-card"
-                  [class.pb-template-card--disabled]="!canAdd(t.type)"
-                  [disabled]="!canAdd(t.type)"
-                  (click)="addSection(t.type)">
-            <span class="pb-template-card__icon">{{ t.icon }}</span>
-            <span class="pb-template-card__name">{{ t.label }}</span>
-            @if (!canAdd(t.type)) {
-              <span class="pb-template-card__limit">Đã đủ</span>
+
+      @for (entry of templatesByCategory | keyvalue; track entry.key) {
+        <div class="pb-modal__category">
+          <h4 class="pb-modal__category-title">{{ categoryLabels[entry.key] || entry.key }}</h4>
+          <div class="pb-modal__grid">
+            @for (t of entry.value; track t.type) {
+              <button class="pb-template-card"
+                      [class.pb-template-card--disabled]="!canAdd(t.type)"
+                      [class.pb-template-card--feature]="t.isFeature"
+                      [disabled]="!canAdd(t.type)"
+                      (click)="addSection(t.type)">
+                <span class="pb-template-card__icon">{{ t.icon }}</span>
+                <span class="pb-template-card__name">{{ t.label }}</span>
+                @if (!canAdd(t.type)) {
+                  <span class="pb-template-card__limit">Đã đủ</span>
+                }
+                @if (t.isFeature) {
+                  <span class="pb-template-card__feature">Feature</span>
+                }
+              </button>
             }
-          </button>
-        }
-      </div>
+          </div>
+        </div>
+      }
+
       <button class="pb-btn pb-btn--ghost pb-modal__close" (click)="showAddModal = false">Đóng</button>
+    </div>
+  </div>
+}
+
+<!-- ==================== V7: Confirm Modal =================== -->
+@if (confirmData.show) {
+  <div class="pb-confirm-overlay" (click)="onConfirmCancel()">
+    <div class="pb-confirm" [class.pb-confirm--danger]="confirmData.type === 'danger'" (click)="$event.stopPropagation()">
+
+      <!-- Icon -->
+      <div class="pb-confirm__icon-wrap">
+        <span class="pb-confirm__icon">{{ confirmData.icon }}</span>
+      </div>
+
+      <!-- Content -->
+      <h3 class="pb-confirm__title">{{ confirmData.title }}</h3>
+      <p class="pb-confirm__message">{{ confirmData.message }}</p>
+
+      @if (confirmData.detail) {
+        <p class="pb-confirm__detail">{{ confirmData.detail }}</p>
+      }
+
+      <!-- Actions -->
+      <div class="pb-confirm__actions">
+        <button class="pb-btn pb-btn--ghost pb-confirm__cancel" (click)="onConfirmCancel()">
+          {{ confirmData.cancelLabel }}
+        </button>
+        <button class="pb-btn pb-confirm__accept"
+                [class.pb-confirm__accept--danger]="confirmData.type === 'danger'"
+                [class.pb-confirm__accept--warning]="confirmData.type === 'warning'"
+                (click)="onConfirmAccept()">
+          {{ confirmData.confirmLabel }}
+        </button>
+      </div>
     </div>
   </div>
 }

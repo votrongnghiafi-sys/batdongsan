@@ -1,0 +1,34 @@
+<div class="eh-loading" *ngIf="loading">
+  <div class="eh-loading__spinner"></div>
+  <span>Loading EcoHaven...</span>
+</div>
+
+<div class="app-shell" *ngIf="config && !loading">
+
+  <!-- COL 1: Sidebar -->
+  <eh-sidebar [data]="config.sidebar"></eh-sidebar>
+
+  <!-- COL 2-3 TOP: Topbar -->
+  <eh-topbar [data]="config.topbar"></eh-topbar>
+
+  <!-- COL 2: Main scroll content -->
+  <main class="content">
+    <eh-hero [hero]="config.hero"></eh-hero>
+
+    <eh-property-list
+      [title]="config.propertiesSection.title"
+      [viewAllLabel]="config.propertiesSection.viewAllLabel"
+      [properties]="config.propertiesSection.properties">
+    </eh-property-list>
+
+    <eh-feature-section
+      [title]="config.featuresSection.title"
+      [subtitle]="config.featuresSection.subtitle || ''"
+      [features]="config.featuresSection.features">
+    </eh-feature-section>
+  </main>
+
+  <!-- COL 3: Right Dashboard Panel -->
+  <eh-dashboard-panel [data]="config.rightPanel"></eh-dashboard-panel>
+
+</div>

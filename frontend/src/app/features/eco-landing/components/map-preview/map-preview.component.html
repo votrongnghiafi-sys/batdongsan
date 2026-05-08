@@ -1,0 +1,47 @@
+<section class="map-section" id="section-map">
+  <div class="map-info">
+    <div class="section-head">
+      <h2>{{ section.title }}</h2>
+      <p>Hiển thị vùng xanh, trục hạ tầng, điểm dự án và các khu vực có tiềm năng tăng trưởng dài hạn.</p>
+    </div>
+
+    <button class="btn btn-primary" type="button" id="btn-explore-map">
+      Khám phá bản đồ
+    </button>
+
+    <!-- Project location info -->
+    <div class="map-location-info" *ngIf="project">
+      <div class="location-item">
+        <span class="location-item__icon">📍</span>
+        <div>
+          <div class="location-item__label">Vị trí dự án</div>
+          <div class="location-item__value">{{ project.location }}</div>
+        </div>
+      </div>
+      <div class="location-item">
+        <span class="location-item__icon">💰</span>
+        <div>
+          <div class="location-item__label">Giá từ</div>
+          <div class="location-item__value">{{ project.startingPrice }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map canvas -->
+  <div class="map-canvas" id="map-canvas">
+    <!-- Gradient zones -->
+    <div class="map-zone map-zone--1"></div>
+    <div class="map-zone map-zone--2"></div>
+
+    <!-- Markers -->
+    <span class="marker marker--1" title="EcoTower Alpha"></span>
+    <span class="marker marker--2" title="Green Horizon Villa"></span>
+    <span class="marker marker--3" title="BioLiving Park"></span>
+
+    <!-- Grid overlay -->
+    <div class="map-grid"></div>
+
+    <div class="map-watermark">EcoEstate Map 2030</div>
+  </div>
+</section>

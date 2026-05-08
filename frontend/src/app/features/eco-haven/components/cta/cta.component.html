@@ -1,0 +1,27 @@
+<section class="cta-section" id="section-cta">
+  <div class="cta-content">
+    <h2>{{ data.headline }}</h2>
+    <p *ngIf="data.subtitle">{{ data.subtitle }}</p>
+
+    <div class="cta-actions">
+      <button class="btn btn-primary" id="cta-get-started" type="button">
+        {{ data.ctaLabel }}
+      </button>
+      <button class="btn btn-ghost" id="cta-advisor" type="button" *ngIf="data.ctaSecondary">
+        {{ data.ctaSecondary }}
+      </button>
+    </div>
+
+    <!-- Social proof stats -->
+    <div class="cta-stats">
+      <div class="cta-stat">
+        <strong>{{ data.stat1Value }}</strong>
+        <span>{{ data.stat1Label }}</span>
+      </div>
+      <div class="cta-stat">
+        <strong>{{ data.stat2Value }}</strong>
+        <span>{{ data.stat2Label }}</span>
+      </div>
+    </div>
+  </div>
+</section>

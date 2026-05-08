@@ -1,0 +1,62 @@
+<section class="analytics-section" id="section-analytics">
+  <div class="section-head">
+    <h2>{{ section.title }}</h2>
+    <p>Theo dõi ROI, tiết kiệm năng lượng, tăng trưởng hạ tầng và chỉ số phát triển khu vực.</p>
+  </div>
+
+  <div class="analytics-grid">
+    <!-- Left: ROI Chart placeholder -->
+    <div class="analytics-card glass-panel" id="analytics-chart">
+      <h3>ROI Projection 2030</h3>
+
+      <div class="chart-area">
+        <!-- Bar chart built from data -->
+        <div class="chart-bars">
+          <div class="chart-bar-group" *ngFor="let yr of chartYears; let i = index">
+            <div class="chart-bar-wrap">
+              <div class="chart-bar chart-bar--market" [style.height]="(40 + i * 8) + 'px'"></div>
+              <div class="chart-bar chart-bar--eco"    [style.height]="(64 + i * 18) + 'px'"
+                   [style.animation-delay]="(i * 0.1) + 's'"></div>
+            </div>
+            <span class="chart-bar-label">{{ yr }}</span>
+          </div>
+        </div>
+        <!-- Legend -->
+        <div class="chart-legend">
+          <span class="chart-legend__dot chart-legend__dot--eco"></span> Eco Property
+          <span class="chart-legend__dot chart-legend__dot--market" style="margin-left:16px"></span> Thị trường
+        </div>
+      </div>
+
+      <!-- ROI highlight -->
+      <div class="roi-highlight" *ngIf="analytics">
+        <span class="roi-highlight__label">ROI Projection</span>
+        <strong class="roi-highlight__value">{{ analytics.roiProjection }}</strong>
+      </div>
+    </div>
+
+    <!-- Right: Eco Performance stats -->
+    <div class="analytics-card glass-panel" id="analytics-perf">
+      <h3>Eco Performance</h3>
+
+      <div class="stat-list" *ngIf="analytics">
+        <div class="stat-card" id="metric-rental">
+          <span class="stat-card__label">Rental Yield</span>
+          <strong class="stat-card__value">{{ analytics.rentalYield }}</strong>
+        </div>
+        <div class="stat-card" id="metric-energy">
+          <span class="stat-card__label">Energy Bill</span>
+          <strong class="stat-card__value">{{ analytics.avgEnergyBill }}</strong>
+        </div>
+        <div class="stat-card" id="metric-co2">
+          <span class="stat-card__label">CO₂ Savings</span>
+          <strong class="stat-card__value">{{ analytics.co2Savings }}</strong>
+        </div>
+        <div class="stat-card" id="metric-infra">
+          <span class="stat-card__label">Infrastructure Growth</span>
+          <strong class="stat-card__value">{{ analytics.infraGrowth }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

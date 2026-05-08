@@ -1,0 +1,82 @@
+<!-- ================================================================
+  EcoEstate Landing Page — Config-driven layout
+  Navbar is embedded in HeroSectionComponent (matches reference HTML)
+================================================================ -->
+
+<!-- Loading -->
+<div class="eco-loading" *ngIf="loading">
+  <div class="eco-loading__spinner"></div>
+  <span>Đang tải EcoEstate...</span>
+</div>
+
+<!-- Error -->
+<div class="eco-error" *ngIf="error && !loading">
+  <span>⚠️</span>
+  <h2>Không thể tải trang</h2>
+  <p>Vui lòng thử lại hoặc liên hệ hỗ trợ.</p>
+</div>
+
+<!-- Page -->
+<main class="page" *ngIf="config && !loading">
+
+  <!-- Hero (includes navbar) -->
+  <eco-hero-section
+    *ngIf="show('showHero') && sectionEnabled('hero')"
+    [section]="config.sections.hero"
+    [stats]="config.stats"
+    [contact]="config.contact"
+    [branding]="config.branding">
+  </eco-hero-section>
+
+  <!-- Properties + Filters (merged into one component) -->
+  <eco-property-cards
+    *ngIf="show('showProperties') && sectionEnabled('properties')"
+    [section]="config.sections.properties"
+    [properties]="config.properties">
+  </eco-property-cards>
+
+  <!-- Analytics Dashboard -->
+  <eco-analytics-dashboard
+    *ngIf="show('showAnalytics') && sectionEnabled('analytics')"
+    [section]="config.sections.analytics"
+    [analytics]="config.analytics">
+  </eco-analytics-dashboard>
+
+  <!-- Map Preview -->
+  <eco-map-preview
+    *ngIf="show('showMap') && sectionEnabled('map')"
+    [section]="config.sections.map"
+    [project]="config.project">
+  </eco-map-preview>
+
+  <!-- AI Recommendation -->
+  <eco-ai-recommendation
+    *ngIf="show('showAIRecommendation') && sectionEnabled('aiRecommendation')"
+    [section]="config.sections.aiRecommendation">
+  </eco-ai-recommendation>
+
+  <!-- Lead Form -->
+  <eco-lead-form
+    *ngIf="show('showLeadForm') && sectionEnabled('leadForm')"
+    [section]="config.sections.leadForm"
+    [contact]="config.contact"
+    [project]="config.project">
+  </eco-lead-form>
+
+  <!-- Footer -->
+  <footer class="eco-footer">
+    <div class="eco-footer__inner">
+      <div>
+        <div class="eco-footer__logo">{{ config.branding.logoText }}</div>
+        <p class="eco-footer__slogan">{{ config.branding.slogan }}</p>
+      </div>
+      <div class="eco-footer__copy">© 2030 {{ config.branding.siteName }}. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- Floating CTA -->
+  <a class="floating-contact" [href]="'tel:' + config.contact.phone" id="float-btn-phone">
+    📞 Tư vấn ngay
+  </a>
+
+</main>

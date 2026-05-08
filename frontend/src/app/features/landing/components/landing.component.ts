@@ -53,35 +53,45 @@ import { FooterComponent } from './footer/footer.component';
       <main>
         @for (section of layout; track section) {
           @if (isSectionEnabled(section)) {
-            @switch (section) {
-              @case ('hero') {
-                @if (config.sections?.hero) { <app-hero /> }
+            <div class="section-bg-wrap" [ngStyle]="getSectionBgStyle(section)">
+              @switch (section) {
+                @case ('hero') {
+                  @if (config.sections?.hero) { <app-hero /> }
+                }
+                @case ('about') {
+                  @if (config.sections?.about) { <app-about /> }
+                }
+                @case ('property-list') {
+                  @if (config.project) { <app-property-list /> }
+                }
+                @case ('amenities') {
+                  @if (config.sections?.amenities) { <app-amenities /> }
+                }
+                @case ('gallery') {
+                  @if (config.sections?.gallery) { <app-gallery /> }
+                }
+                @case ('location') {
+                  @if (config.sections?.location) { <app-location /> }
+                }
+                @case ('lead-form') {
+                  <app-lead-form />
+                }
               }
-              @case ('about') {
-                @if (config.sections?.about) { <app-about /> }
-              }
-              @case ('property-list') {
-                @if (config.project) { <app-property-list /> }
-              }
-              @case ('amenities') {
-                @if (config.sections?.amenities) { <app-amenities /> }
-              }
-              @case ('gallery') {
-                @if (config.sections?.gallery) { <app-gallery /> }
-              }
-              @case ('location') {
-                @if (config.sections?.location) { <app-location /> }
-              }
-              @case ('lead-form') {
-                <app-lead-form />
-              }
-            }
+            </div>
           }
         }
         <app-footer />
       </main>
     }
   `,
+  styles: [`
+    .section-bg-wrap {
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  `],
 })
 export class LandingComponent implements OnInit {
   private http = inject(HttpClient);
@@ -200,6 +210,32 @@ export class LandingComponent implements OnInit {
    */
   getSectionConfig(sectionKey: string): Record<string, unknown> {
     return (this.config?.sections_config?.[sectionKey] as Record<string, unknown>) ?? {};
+  }
+
+  /**
+   * V7: Generate background styles for a section.
+   * Priority: backgroundImage (with cover) → backgroundColor → transparent
+   * Checks both "section-1" keyed config and plain "section" key.
+   */
+  getSectionBgStyle(sectionKey: string): Record<string, string> {
+    // Try "hero-1" style key first, then plain "hero"
+    const cfg = this.config?.sections_config?.[`${sectionKey}-1`]
+              || this.config?.sections_config?.[sectionKey]
+              || {};
+
+    const bgImage = (cfg as any).backgroundImage;
+    const bgColor = (cfg as any).backgroundColor;
+
+    const style: Record<string, string> = {};
+
+    if (bgImage) {
+      style['background-image'] = `url(${bgImage})`;
+    }
+    if (bgColor && !bgImage) {
+      style['background-color'] = bgColor;
+    }
+
+    return style;
   }
 
   reload(): void {

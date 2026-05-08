@@ -1,0 +1,108 @@
+<section class="eco-filters" id="section-filters">
+  <div class="eco-section-header">
+    <div class="eco-tag">🔍 Bộ lọc thông minh</div>
+    <h2 class="eco-section-title">{{ section.title }}</h2>
+  </div>
+
+  <div class="eco-filters__card">
+    <div class="eco-filters__grid">
+
+      <!-- Location -->
+      <div class="eco-filter-group" id="filter-location">
+        <label class="eco-filter-label">📍 Vị trí</label>
+        <select class="eco-filter-select" [(ngModel)]="filters.location" (change)="emitFilters()">
+          <option value="">Tất cả khu vực</option>
+          <option *ngFor="let loc of locations" [value]="loc">{{ loc }}</option>
+        </select>
+      </div>
+
+      <!-- Price range -->
+      <div class="eco-filter-group" id="filter-price">
+        <label class="eco-filter-label">
+          💰 Khoảng giá: <strong>{{ filters.minPrice }} – {{ filters.maxPrice }} tỷ</strong>
+        </label>
+        <div class="eco-filter-range-wrap">
+          <input
+            type="range" class="eco-filter-range"
+            [(ngModel)]="filters.minPrice"
+            min="0" max="20" step="0.5"
+            (input)="emitFilters()" />
+          <input
+            type="range" class="eco-filter-range"
+            [(ngModel)]="filters.maxPrice"
+            min="0" max="20" step="0.5"
+            (input)="emitFilters()" />
+        </div>
+      </div>
+
+      <!-- Eco score -->
+      <div class="eco-filter-group" id="filter-eco-score">
+        <label class="eco-filter-label">
+          🌱 Eco Score tối thiểu: <strong>{{ filters.ecoScore }}</strong>
+        </label>
+        <input
+          type="range" class="eco-filter-range"
+          [(ngModel)]="filters.ecoScore"
+          min="0" max="100" step="5"
+          (input)="emitFilters()" />
+        <div class="eco-filter-range-labels">
+          <span>0</span><span>50</span><span>100</span>
+        </div>
+      </div>
+
+      <!-- Property type -->
+      <div class="eco-filter-group" id="filter-type">
+        <label class="eco-filter-label">🏠 Loại bất động sản</label>
+        <div class="eco-filter-chips">
+          <button
+            class="eco-chip"
+            [class.eco-chip--active]="filters.propertyType === ''"
+            type="button"
+            (click)="filters.propertyType = ''; emitFilters()">
+            Tất cả
+          </button>
+          <button
+            *ngFor="let t of propertyTypes"
+            class="eco-chip"
+            [class.eco-chip--active]="filters.propertyType === t"
+            type="button"
+            (click)="filters.propertyType = t; emitFilters()">
+            {{ t }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Solar capacity -->
+      <div class="eco-filter-group" id="filter-solar">
+        <label class="eco-filter-label">
+          ☀️ Công suất solar tối thiểu: <strong>{{ filters.minSolar }} kWp</strong>
+        </label>
+        <input
+          type="range" class="eco-filter-range"
+          [(ngModel)]="filters.minSolar"
+          min="0" max="30" step="1"
+          (input)="emitFilters()" />
+      </div>
+
+      <!-- Certification -->
+      <div class="eco-filter-group" id="filter-cert">
+        <label class="eco-filter-label">🏅 Chứng chỉ xanh</label>
+        <select class="eco-filter-select" [(ngModel)]="filters.certification" (change)="emitFilters()">
+          <option value="">Tất cả chứng chỉ</option>
+          <option *ngFor="let cert of certifications" [value]="cert">{{ cert }}</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Reset button -->
+    <div class="eco-filters__actions">
+      <button class="eco-filters__reset" type="button" (click)="resetFilters()" id="btn-reset-filters">
+        ↺ Đặt lại bộ lọc
+      </button>
+      <button class="eco-btn eco-btn--primary eco-filters__apply" type="button" id="btn-apply-filters" (click)="emitFilters()">
+        🔍 Tìm dự án
+      </button>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,37 @@
+<section class="properties-section" id="section-properties">
+  <div class="section-header">
+    <h2>{{ title }}</h2>
+    <a class="view-all" id="btn-view-all" href="#">{{ viewAllLabel }} →</a>
+  </div>
+
+  <div class="property-grid">
+    <article
+      *ngFor="let prop of properties"
+      class="property-card"
+      [id]="'prop-' + prop.id">
+
+      <div class="property-card__img-wrap">
+        <img [src]="prop.image" [alt]="prop.name" loading="lazy" />
+        <span class="property-card__badge" *ngIf="prop.badge">{{ prop.badge }}</span>
+        <div class="property-card__score">{{ prop.score }}</div>
+        <button class="property-card__heart" type="button" [id]="'heart-' + prop.id" title="Save property">♡</button>
+      </div>
+
+      <div class="property-card__body">
+        <p class="property-card__location">📍 {{ prop.location }}</p>
+        <h3>{{ prop.name }}</h3>
+
+        <div class="property-card__meta">
+          <span *ngIf="prop.beds">🛏 {{ prop.beds }} Bed</span>
+          <span *ngIf="prop.baths">🚿 {{ prop.baths }} Bath</span>
+          <span *ngIf="prop.area">📐 {{ prop.area }}m²</span>
+        </div>
+
+        <div class="property-card__footer">
+          <span class="property-card__price">{{ prop.price }}</span>
+          <span class="property-card__roi" *ngIf="prop.roi">{{ prop.roi }}</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
