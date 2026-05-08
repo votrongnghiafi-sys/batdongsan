@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { SiteService } from '../../../core/services/site.service';
@@ -53,7 +53,9 @@ import { FooterComponent } from './footer/footer.component';
       <main>
         @for (section of layout; track section) {
           @if (isSectionEnabled(section)) {
-            <div class="section-bg-wrap" [ngStyle]="getSectionBgStyle(section)">
+            <div class="section-bg-wrap"
+                 [class.section-bg-wrap--custom]="hasSectionBg(section)"
+                 [ngStyle]="getSectionBgStyle(section)">
               @switch (section) {
                 @case ('hero') {
                   @if (config.sections?.hero) { <app-hero /> }
@@ -91,7 +93,19 @@ import { FooterComponent } from './footer/footer.component';
       background-position: center;
       background-repeat: no-repeat;
     }
+    /* V7: When a section has custom background, make child component bg transparent */
+    .section-bg-wrap--custom .hero,
+    .section-bg-wrap--custom .about,
+    .section-bg-wrap--custom .amenities,
+    .section-bg-wrap--custom .gallery,
+    .section-bg-wrap--custom .location,
+    .section-bg-wrap--custom .lead-form,
+    .section-bg-wrap--custom .property-list,
+    .section-bg-wrap--custom .property-filter {
+      background: transparent !important;
+    }
   `],
+  encapsulation: ViewEncapsulation.None,
 })
 export class LandingComponent implements OnInit {
   private http = inject(HttpClient);
@@ -215,13 +229,10 @@ export class LandingComponent implements OnInit {
   /**
    * V7: Generate background styles for a section.
    * Priority: backgroundImage (with cover) → backgroundColor → transparent
-   * Checks both "section-1" keyed config and plain "section" key.
+   * Config is already merged by the API (keyed by section type).
    */
   getSectionBgStyle(sectionKey: string): Record<string, string> {
-    // Try "hero-1" style key first, then plain "hero"
-    const cfg = this.config?.sections_config?.[`${sectionKey}-1`]
-              || this.config?.sections_config?.[sectionKey]
-              || {};
+    const cfg = this.config?.sections_config?.[sectionKey] || {};
 
     const bgImage = (cfg as any).backgroundImage;
     const bgColor = (cfg as any).backgroundColor;
@@ -236,6 +247,12 @@ export class LandingComponent implements OnInit {
     }
 
     return style;
+  }
+
+  /** V7: Check if a section has custom background set */
+  hasSectionBg(sectionKey: string): boolean {
+    const cfg = this.config?.sections_config?.[sectionKey] || {};
+    return !!((cfg as any).backgroundImage || (cfg as any).backgroundColor);
   }
 
   reload(): void {

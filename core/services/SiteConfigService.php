@@ -356,10 +356,16 @@ class SiteConfigService {
 
         $result = [];
         foreach ($homepage as $sectionKey) {
-            // Get stored config or default
+            // V7: Check both plain key ("hero") and instance key ("hero-1")
             $config = $sectionsConfig[$sectionKey]
+                ?? $sectionsConfig[$sectionKey . '-1']
                 ?? self::DEFAULT_SECTIONS[$sectionKey]
                 ?? ['enabled' => true];
+
+            // If instance key exists, merge it on top
+            if (isset($sectionsConfig[$sectionKey . '-1']) && isset($sectionsConfig[$sectionKey])) {
+                $config = array_merge($sectionsConfig[$sectionKey], $sectionsConfig[$sectionKey . '-1']);
+            }
 
             // Merge with defaults to fill missing fields
             if (isset(self::DEFAULT_SECTIONS[$sectionKey])) {
