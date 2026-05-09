@@ -16,9 +16,9 @@
     <h1 class="hero__title">{{ hero.title }}</h1>
     <p class="hero__subtitle">{{ hero.subtitle }}</p>
 
-    <p class="hero__location" *ngIf="project?.location">
+    <p class="hero__location" *ngIf="location">
       <span class="hero__location-icon">📍</span>
-      {{ project!.location }}
+      {{ location }}
     </p>
 
     <div class="hero__actions">
@@ -30,28 +30,28 @@
         {{ hero.ctaText || 'Đăng ký tư vấn' }}
       </button>
       <a
-        *ngIf="hero.ctaPhone"
-        [href]="'tel:' + hero.ctaPhone"
+        *ngIf="ctaPhone"
+        [href]="'tel:' + ctaPhone"
         class="hero__cta hero__cta--secondary"
         id="hero-cta-phone">
         📞 Gọi ngay
       </a>
     </div>
 
-    <div class="hero__stats">
-      <div class="hero__stat">
-        <span class="hero__stat-value">100+</span>
-        <span class="hero__stat-label">Căn hộ</span>
+    <div class="hero__stats" *ngIf="hasStats">
+      <div class="hero__stat" *ngIf="stat1Value">
+        <span class="hero__stat-value">{{ stat1Value }}</span>
+        <span class="hero__stat-label">{{ stat1Label }}</span>
       </div>
-      <div class="hero__stat-divider"></div>
-      <div class="hero__stat">
-        <span class="hero__stat-value">5★</span>
-        <span class="hero__stat-label">Tiện ích</span>
+      <div class="hero__stat-divider" *ngIf="stat1Value && stat2Value"></div>
+      <div class="hero__stat" *ngIf="stat2Value">
+        <span class="hero__stat-value">{{ stat2Value }}</span>
+        <span class="hero__stat-label">{{ stat2Label }}</span>
       </div>
-      <div class="hero__stat-divider"></div>
-      <div class="hero__stat">
-        <span class="hero__stat-value">24/7</span>
-        <span class="hero__stat-label">An ninh</span>
+      <div class="hero__stat-divider" *ngIf="stat2Value && stat3Value"></div>
+      <div class="hero__stat" *ngIf="stat3Value">
+        <span class="hero__stat-value">{{ stat3Value }}</span>
+        <span class="hero__stat-label">{{ stat3Label }}</span>
       </div>
     </div>
   </div>

@@ -15,7 +15,24 @@ export class AboutComponent implements AfterViewInit {
   @ViewChild('sectionRef') sectionRef!: ElementRef;
   isVisible = false;
 
-  get about() { return this.siteService.config?.sections?.about; }
+  /**
+   * V8: Merge sections_config (Page Builder) with sections (V1 legacy).
+   * Priority: sections_config fields > sections fields.
+   */
+  get about() {
+    const v1 = this.siteService.config?.sections?.about;
+    const v4 = this.siteService.config?.sections_config?.['about'] as Record<string, unknown> | undefined;
+
+    if (!v1 && !v4) return null;
+
+    return {
+      title: (v4?.['title'] as string) || v1?.title || '',
+      description: (v4?.['description'] as string) || v1?.description || '',
+      highlights: (v4?.['highlights'] as string[])?.length
+        ? (v4!['highlights'] as string[]).filter(h => h.trim())
+        : v1?.highlights || [],
+    };
+  }
 
   ngAfterViewInit(): void {
     const observer = new IntersectionObserver(

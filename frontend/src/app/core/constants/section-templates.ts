@@ -15,7 +15,7 @@
 export type SectionCategory = 'content' | 'widget' | 'utility';
 
 export interface SectionFieldSchema {
-  type: 'text' | 'textarea' | 'number' | 'select' | 'toggle' | 'image' | 'color';
+  type: 'text' | 'textarea' | 'number' | 'select' | 'toggle' | 'image' | 'color' | 'list';
   label: string;
   placeholder?: string;
   options?: { value: string; label: string }[];
@@ -95,15 +95,38 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
       title: '',
       subtitle: '',
       ...BACKGROUND_DEFAULTS,
+      // Status badge
+      status: 'selling',
+      // Location
+      location: '',
+      // CTA buttons
       ctaText: 'Liên hệ tư vấn',
       ctaLink: '#section-contact',
+      ctaPhone: '',
+      // Stats cards
+      stat1Value: '100+', stat1Label: 'Căn hộ',
+      stat2Value: '5★',   stat2Label: 'Tiện ích',
+      stat3Value: '24/7',  stat3Label: 'An ninh',
     },
     schema: {
-      title:           { type: 'text',     label: 'Tiêu đề',    placeholder: 'Dự Án ABC' },
-      subtitle:        { type: 'text',     label: 'Phụ đề',     placeholder: 'Không gian sống đẳng cấp' },
+      title:           { type: 'text',     label: 'Tiêu đề',       placeholder: 'Dự Án ABC' },
+      subtitle:        { type: 'text',     label: 'Phụ đề',        placeholder: 'Không gian sống đẳng cấp' },
       ...BACKGROUND_SCHEMA,
-      ctaText:         { type: 'text',     label: 'Nút CTA',    placeholder: 'Xem bảng giá' },
-      ctaLink:         { type: 'text',     label: 'Link CTA',   placeholder: '#section-contact' },
+      status:          { type: 'select',   label: 'Trạng thái',    options: [
+        { value: 'selling',   label: 'Đang mở bán' },
+        { value: 'upcoming',  label: 'Sắp ra mắt' },
+        { value: 'sold_out',  label: 'Đã bán hết' },
+      ]},
+      location:        { type: 'text',     label: 'Vị trí',        placeholder: 'Quận 2, TP.HCM' },
+      ctaText:         { type: 'text',     label: 'Nút CTA chính', placeholder: 'Đăng ký tư vấn' },
+      ctaLink:         { type: 'text',     label: 'Link CTA',      placeholder: '#section-contact' },
+      ctaPhone:        { type: 'text',     label: 'Số điện thoại CTA', placeholder: '0909 123 456' },
+      stat1Value:      { type: 'text',     label: 'Stat 1 — Giá trị', placeholder: '100+' },
+      stat1Label:      { type: 'text',     label: 'Stat 1 — Nhãn',    placeholder: 'Căn hộ' },
+      stat2Value:      { type: 'text',     label: 'Stat 2 — Giá trị', placeholder: '5★' },
+      stat2Label:      { type: 'text',     label: 'Stat 2 — Nhãn',    placeholder: 'Tiện ích' },
+      stat3Value:      { type: 'text',     label: 'Stat 3 — Giá trị', placeholder: '24/7' },
+      stat3Label:      { type: 'text',     label: 'Stat 3 — Nhãn',    placeholder: 'An ninh' },
     },
   },
   {
@@ -116,11 +139,13 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
       enabled: true,
       title: 'Về dự án',
       description: '',
+      highlights: [],
       ...BACKGROUND_DEFAULTS,
     },
     schema: {
       title:       { type: 'text',     label: 'Tiêu đề',   placeholder: 'Về dự án' },
       description: { type: 'textarea', label: 'Mô tả',     placeholder: 'Giới thiệu về dự án...' },
+      highlights:  { type: 'list',     label: 'Điểm nổi bật', placeholder: 'VD: Vị trí vàng Quận 2' },
       ...BACKGROUND_SCHEMA,
     },
   },

@@ -18,6 +18,7 @@ class SiteConfigService {
     private const VALID_KEYS = [
         'branding', 'theme', 'contact', 'features',
         'layout', 'seo', 'lead', 'project', 'sections',
+        'navigation',
     ];
 
     /**
@@ -97,6 +98,17 @@ class SiteConfigService {
         ],
         // V4: section-level config (page builder foundation)
         'sections' => [],
+        // V5: navigation menu config
+        'navigation' => [
+            'items' => [
+                ['key' => 'about',      'label' => 'Giới thiệu', 'anchor' => '#section-about'],
+                ['key' => 'properties', 'label' => 'Bảng giá',   'anchor' => '#section-properties'],
+                ['key' => 'amenities',  'label' => 'Tiện ích',   'anchor' => '#section-amenities'],
+                ['key' => 'gallery',    'label' => 'Thư viện',   'anchor' => '#section-gallery'],
+                ['key' => 'location',   'label' => 'Vị trí',     'anchor' => '#section-location'],
+                ['key' => 'contact',    'label' => 'Liên hệ',    'anchor' => '#section-contact'],
+            ],
+        ],
     ];
 
     /**
@@ -118,6 +130,7 @@ class SiteConfigService {
             'enabled' => true,
             'title' => 'Về dự án',
             'description' => '',
+            'highlights' => [],
         ],
         'property-list' => [
             'enabled' => true,

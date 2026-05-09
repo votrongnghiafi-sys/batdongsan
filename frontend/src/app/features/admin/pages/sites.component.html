@@ -336,6 +336,188 @@
       </form>
     }
 
+    <!-- ======================= NAVIGATION / MENU ======================= -->
+    @if (activeTab === 'navigation') {
+      <div class="nav-manager">
+        <div class="nav-manager__header">
+          <div>
+            <h3 class="nav-manager__title">Quản lý Menu</h3>
+            <p class="nav-manager__subtitle">Kéo thả để sắp xếp, hỗ trợ menu 2 cấp</p>
+          </div>
+          <button class="a-btn a-btn--primary a-btn--sm" (click)="addMenuItem(0)">
+            ➕ Thêm menu
+          </button>
+        </div>
+
+        <!-- Empty state -->
+        @if (!menuItems.length) {
+          <div class="nav-empty">
+            <span class="nav-empty__icon">📋</span>
+            <p class="nav-empty__text">Chưa có menu nào. Nhấn "Thêm menu" để bắt đầu.</p>
+          </div>
+        }
+
+        <!-- Menu items list with drag & drop -->
+        @if (menuItems.length) {
+          <div cdkDropList
+               class="nav-list"
+               (cdkDropListDropped)="onMenuDrop($event)"
+               [cdkDropListData]="getTopLevelItems()">
+            @for (item of getTopLevelItems(); track item.key) {
+              <div class="nav-item" cdkDrag>
+                <!-- Drag handle -->
+                <div class="nav-item__drag" cdkDragHandle>
+                  <span class="nav-item__grip">⠿</span>
+                </div>
+
+                <!-- Item content -->
+                <div class="nav-item__body">
+                  <div class="nav-item__main">
+                    <span class="nav-item__icon">{{ item.icon || '🔗' }}</span>
+                    <div class="nav-item__info">
+                      <span class="nav-item__label" [class.nav-item__label--hidden]="item.visible === false">
+                        {{ item.label }}
+                      </span>
+                      <span class="nav-item__anchor">{{ item.anchor }}</span>
+                    </div>
+                    <span class="nav-item__key">{{ item.key }}</span>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="nav-item__actions">
+                    <button class="a-btn a-btn--ghost a-btn--xs" (click)="addMenuItem(menuItems.indexOf(item) + 1)" title="Thêm menu con">
+                      ➕
+                    </button>
+                    <button class="a-btn a-btn--ghost a-btn--xs" (click)="toggleMenuItemVisibility(item)" [title]="item.visible === false ? 'Hiện' : 'Ẩn'">
+                      {{ item.visible === false ? '👁️‍🗨️' : '👁️' }}
+                    </button>
+                    <button class="a-btn a-btn--ghost a-btn--xs" (click)="editMenuItem(item)" title="Sửa">✏️</button>
+                    <button class="a-btn a-btn--danger a-btn--xs" (click)="removeMenuItem(item)" title="Xóa">🗑️</button>
+                  </div>
+                </div>
+
+                <!-- Children (sub-menu level 2) -->
+                @if (getChildItems(item.key).length) {
+                  <div cdkDropList
+                       class="nav-children"
+                       (cdkDropListDropped)="onChildMenuDrop($event, item.key)"
+                       [cdkDropListData]="getChildItems(item.key)">
+                    @for (child of getChildItems(item.key); track child.key) {
+                      <div class="nav-item nav-item--child" cdkDrag>
+                        <div class="nav-item__drag" cdkDragHandle>
+                          <span class="nav-item__grip">⠿</span>
+                        </div>
+                        <div class="nav-item__body">
+                          <div class="nav-item__main">
+                            <span class="nav-item__indent">└</span>
+                            <span class="nav-item__icon">{{ child.icon || '🔗' }}</span>
+                            <div class="nav-item__info">
+                              <span class="nav-item__label" [class.nav-item__label--hidden]="child.visible === false">
+                                {{ child.label }}
+                              </span>
+                              <span class="nav-item__anchor">{{ child.anchor }}</span>
+                            </div>
+                            <span class="nav-item__key">{{ child.key }}</span>
+                          </div>
+                          <div class="nav-item__actions">
+                            <button class="a-btn a-btn--ghost a-btn--xs" (click)="toggleMenuItemVisibility(child)" [title]="child.visible === false ? 'Hiện' : 'Ẩn'">
+                              {{ child.visible === false ? '👁️‍🗨️' : '👁️' }}
+                            </button>
+                            <button class="a-btn a-btn--ghost a-btn--xs" (click)="editMenuItem(child)" title="Sửa">✏️</button>
+                            <button class="a-btn a-btn--danger a-btn--xs" (click)="removeMenuItem(child)" title="Xóa">🗑️</button>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Add / Edit form (inline) -->
+        @if (showMenuForm && editingMenuItem) {
+          <div class="nav-form">
+            <div class="nav-form__header">
+              <span class="nav-form__title">
+              {{ editingMenuItem.key && menuItems.length ? '✏️ Sửa menu' : '➕ Thêm menu mới' }}
+                @if (editingMenuItem.parentId) {
+                  <span class="nav-form__badge">Menu con</span>
+                }
+              </span>
+              <button class="a-btn a-btn--ghost a-btn--xs" (click)="cancelMenuEdit()">✕</button>
+            </div>
+            <div class="a-form">
+              <div class="nav-form__grid">
+                <div class="a-fg">
+                  <label class="a-lbl">Tên hiển thị <span class="req">*</span></label>
+                  <input class="a-input"
+                    [value]="editingMenuItem.label"
+                    (input)="editingMenuItem.label = $any($event.target).value; generateMenuKey($any($event.target).value)"
+                    placeholder="Giới thiệu">
+                </div>
+                <div class="a-fg">
+                  <label class="a-lbl">Key <span class="req">*</span></label>
+                  <input class="a-input"
+                    [value]="editingMenuItem.key"
+                    (input)="editingMenuItem.key = $any($event.target).value"
+                    placeholder="gioi-thieu">
+                </div>
+              </div>
+              <div class="nav-form__grid">
+                <div class="a-fg">
+                  <label class="a-lbl">Link / Anchor</label>
+                  <input class="a-input"
+                    [value]="editingMenuItem.anchor"
+                    (input)="editingMenuItem.anchor = $any($event.target).value"
+                    placeholder="#section-about hoặc https://...">
+                </div>
+                <div class="a-fg">
+                  <label class="a-lbl">Icon (emoji)</label>
+                  <input class="a-input"
+                    [value]="editingMenuItem.icon || ''"
+                    (input)="editingMenuItem.icon = $any($event.target).value"
+                    placeholder="🏠" style="max-width: 100px">
+                </div>
+              </div>
+              <div class="nav-form__actions">
+                <button class="a-btn a-btn--primary" (click)="saveMenuItem()" [disabled]="!editingMenuItem.key || !editingMenuItem.label">
+                  💾 Lưu
+                </button>
+                <button class="a-btn a-btn--ghost" (click)="cancelMenuEdit()">Hủy</button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Preview -->
+        @if (menuItems.length) {
+          <div class="nav-preview">
+            <div class="nav-preview__title">👁️ Xem trước menu</div>
+            <div class="nav-preview__bar">
+              @for (item of getTopLevelItems(); track item.key) {
+                @if (item.visible !== false) {
+                  <div class="nav-preview__item" [class.nav-preview__item--has-children]="getChildItems(item.key).length">
+                    <span>{{ item.icon }} {{ item.label }}</span>
+                    @if (getChildItems(item.key).length) {
+                      <div class="nav-preview__dropdown">
+                        @for (child of getChildItems(item.key); track child.key) {
+                          @if (child.visible !== false) {
+                            <span class="nav-preview__child">{{ child.icon }} {{ child.label }}</span>
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
     <!-- ======================= PROJECT ======================= -->
     @if (activeTab === 'project') {
       <form class="a-form" [formGroup]="projectForm">

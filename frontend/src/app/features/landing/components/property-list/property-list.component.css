@@ -127,6 +127,61 @@
   color: var(--text-secondary); font-size: 1.1rem;
 }
 
+.properties__empty-icon {
+  display: block;
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+.properties__empty .filter-btn {
+  margin-top: 1rem;
+}
+
+/* Skeleton Loading */
+.prop-card--skeleton {
+  pointer-events: none;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--glass-bg) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    var(--glass-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.skeleton--image {
+  aspect-ratio: 16/10;
+  border-radius: 20px 20px 0 0;
+}
+
+.skeleton--title {
+  height: 1.05rem;
+  width: 75%;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton--price {
+  height: 1.35rem;
+  width: 40%;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton--meta {
+  height: 0.85rem;
+  width: 60%;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 /* Pagination */
 .properties__pagination {
   display: flex; justify-content: center; align-items: center;

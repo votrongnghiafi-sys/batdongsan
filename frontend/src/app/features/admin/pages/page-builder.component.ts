@@ -290,6 +290,39 @@ export class PageBuilderComponent implements OnInit, OnDestroy {
   }
 
   // ---------------------------------------------------------------
+  // V8: List Field Operations
+  // ---------------------------------------------------------------
+
+  /** Get items array for a list field */
+  getListItems(field: string): string[] {
+    if (!this.selectedId) return [];
+    const val = this.getSelectedConfig()[field];
+    return Array.isArray(val) ? val : [];
+  }
+
+  /** Update a single item in a list field */
+  updateListItem(field: string, index: number, value: string): void {
+    if (!this.selectedId) return;
+    const items = [...this.getListItems(field)];
+    items[index] = value;
+    this.updateField(this.selectedId, field, items);
+  }
+
+  /** Add a new empty item to a list field */
+  addListItem(field: string): void {
+    if (!this.selectedId) return;
+    const items = [...this.getListItems(field), ''];
+    this.updateField(this.selectedId, field, items);
+  }
+
+  /** Remove an item from a list field */
+  removeListItem(field: string, index: number): void {
+    if (!this.selectedId) return;
+    const items = this.getListItems(field).filter((_, i) => i !== index);
+    this.updateField(this.selectedId, field, items);
+  }
+
+  // ---------------------------------------------------------------
   // V7: Confirm Modal
   // ---------------------------------------------------------------
 

@@ -9,7 +9,7 @@
       <h2 class="section-title">Danh sách sản phẩm</h2>
     </div>
 
-    <!-- Filters -->
+    <!-- Filters (V8: dynamic bedroom options) -->
     <div class="properties__filters">
       <button
         class="filter-btn"
@@ -29,76 +29,103 @@
       }
     </div>
 
-    <!-- Loading -->
-    <div class="properties__loading" *ngIf="loading">
-      <div class="loading-spinner"></div>
-    </div>
+    <!-- V8: Skeleton Loading -->
+    @if (loading) {
+      <div class="properties__grid">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="prop-card prop-card--skeleton">
+            <div class="skeleton skeleton--image"></div>
+            <div class="prop-card__body">
+              <div class="skeleton skeleton--title"></div>
+              <div class="skeleton skeleton--price"></div>
+              <div class="skeleton skeleton--meta"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
 
     <!-- Grid -->
-    <div class="properties__grid" *ngIf="!loading">
-      @for (prop of properties; track prop.id) {
-        <div class="prop-card" [style.animation-delay]="($index * 0.08) + 's'">
-          <!-- Image -->
-          <div class="prop-card__image-wrap">
-            @if (prop.images?.length) {
-              <img [src]="prop.images[0].url" [alt]="prop.title" class="prop-card__image" loading="lazy" />
-            } @else {
-              <div class="prop-card__image-placeholder">🏠</div>
-            }
-            <span class="prop-card__status" [ngClass]="getStatusClass(prop.status)">
-              {{ getStatusLabel(prop.status) }}
-            </span>
-            <span class="prop-card__featured" *ngIf="prop.is_featured">⭐ Nổi bật</span>
-          </div>
-
-          <!-- Info -->
-          <div class="prop-card__body">
-            <h3 class="prop-card__title">{{ prop.title }}</h3>
-            <div class="prop-card__price">{{ formatPrice(prop.price) }}</div>
-            <div class="prop-card__meta">
-              <span *ngIf="prop.area">📐 {{ formatArea(prop.area) }}</span>
-              <span *ngIf="prop.bedrooms">🛏️ {{ prop.bedrooms }} PN</span>
-              <span *ngIf="prop.bathrooms">🚿 {{ prop.bathrooms }} WC</span>
+    @if (!loading && properties.length > 0) {
+      <div class="properties__grid">
+        @for (prop of properties; track prop.id) {
+          <div class="prop-card" [style.animation-delay]="($index * 0.08) + 's'">
+            <!-- Image -->
+            <div class="prop-card__image-wrap">
+              @if (prop.images?.length) {
+                <img [src]="prop.images[0].url" [alt]="prop.title" class="prop-card__image" loading="lazy" />
+              } @else {
+                <div class="prop-card__image-placeholder">🏠</div>
+              }
+              <span class="prop-card__status" [ngClass]="getStatusClass(prop.status)">
+                {{ getStatusLabel(prop.status) }}
+              </span>
+              @if (prop.is_featured) {
+                <span class="prop-card__featured">⭐ Nổi bật</span>
+              }
             </div>
-            <p class="prop-card__direction" *ngIf="prop.direction || prop.floor">
-              {{ prop.direction ? 'Hướng: ' + prop.direction : '' }}
-              {{ prop.floor ? ' · ' + prop.floor : '' }}
-            </p>
+
+            <!-- Info -->
+            <div class="prop-card__body">
+              <h3 class="prop-card__title">{{ prop.title }}</h3>
+              <div class="prop-card__price">{{ formatPrice(prop.price) }}</div>
+              <div class="prop-card__meta">
+                @if (prop.area) { <span>📐 {{ formatArea(prop.area) }}</span> }
+                @if (prop.bedrooms) { <span>🛏️ {{ prop.bedrooms }} PN</span> }
+                @if (prop.bathrooms) { <span>🚿 {{ prop.bathrooms }} WC</span> }
+              </div>
+              @if (prop.direction || prop.floor) {
+                <p class="prop-card__direction">
+                  {{ prop.direction ? 'Hướng: ' + prop.direction : '' }}
+                  {{ prop.floor ? ' · ' + prop.floor : '' }}
+                </p>
+              }
+            </div>
           </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    }
 
     <!-- Empty state -->
-    <div class="properties__empty" *ngIf="!loading && properties.length === 0">
-      <p>Không tìm thấy sản phẩm phù hợp.</p>
-    </div>
+    @if (!loading && properties.length === 0) {
+      <div class="properties__empty">
+        <span class="properties__empty-icon">🔍</span>
+        <p>Không tìm thấy sản phẩm phù hợp.</p>
+        @if (selectedBedrooms !== null) {
+          <button class="filter-btn filter-btn--active" (click)="filterByBedrooms(null)" type="button">
+            ← Xem tất cả
+          </button>
+        }
+      </div>
+    }
 
     <!-- Pagination -->
-    <div class="properties__pagination" *ngIf="totalPages > 1">
-      <button
-        class="page-btn"
-        [disabled]="currentPage === 1"
-        (click)="goToPage(currentPage - 1)"
-        type="button">
-        ‹
-      </button>
-      @for (p of pages; track p) {
+    @if (!loading && totalPages > 1) {
+      <div class="properties__pagination">
         <button
           class="page-btn"
-          [class.page-btn--active]="currentPage === p"
-          (click)="goToPage(p)"
+          [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)"
           type="button">
-          {{ p }}
+          ‹
         </button>
-      }
-      <button
-        class="page-btn"
-        [disabled]="currentPage === totalPages"
-        (click)="goToPage(currentPage + 1)"
-        type="button">
-        ›
-      </button>
-    </div>
+        @for (p of pages; track p) {
+          <button
+            class="page-btn"
+            [class.page-btn--active]="currentPage === p"
+            (click)="goToPage(p)"
+            type="button">
+            {{ p }}
+          </button>
+        }
+        <button
+          class="page-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)"
+          type="button">
+          ›
+        </button>
+      </div>
+    }
   </div>
 </section>

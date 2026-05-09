@@ -99,6 +99,21 @@ export interface LayoutConfig {
   homepage: string[];
 }
 
+// V5: Navigation menu config
+export interface NavigationItem {
+  key: string;
+  label: string;
+  anchor: string;
+  icon?: string;
+  visible?: boolean;
+  parentId?: number;   // 0 = top-level, >0 = child of item at that index
+  sortOrder?: number;
+}
+
+export interface NavigationConfig {
+  items: NavigationItem[];
+}
+
 // V4: Section-level config (page builder)
 export interface SectionConfig {
   enabled: boolean;
@@ -232,6 +247,7 @@ export interface SiteConfig {
   contact?: ContactConfig;
   features?: FeaturesConfig;
   layout?: LayoutConfig;
+  navigation?: NavigationConfig;
   seo?: SeoConfig;
   lead?: LeadConfig;
 

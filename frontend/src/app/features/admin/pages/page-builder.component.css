@@ -497,6 +497,38 @@
 }
 
 /* ---------------------------------------------------------------
+   V8: List Field (dynamic string array)
+   --------------------------------------------------------------- */
+.pb-field__list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pb-field__list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pb-field__list-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(10, 132, 255, 0.5);
+  min-width: 22px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.pb-field__list-input {
+  flex: 1;
+}
+
+.pb-field__list-add {
+  margin-top: 0.25rem;
+  align-self: flex-start;
+}
+
+/* ---------------------------------------------------------------
    Preview
    --------------------------------------------------------------- */
 .pb-preview {

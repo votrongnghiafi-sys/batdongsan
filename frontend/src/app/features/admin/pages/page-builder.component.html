@@ -241,6 +241,26 @@
                           }
                         </div>
                       }
+                      @case ('list') {
+                        <!-- V8: Dynamic List Field -->
+                        <div class="pb-field__list-group">
+                          @for (item of getListItems(entry[0]); track $index) {
+                            <div class="pb-field__list-item">
+                              <span class="pb-field__list-num">{{ ($index + 1).toString().padStart(2, '0') }}</span>
+                              <input class="pb-field__input pb-field__list-input" type="text"
+                                [placeholder]="entry[1].placeholder || ''"
+                                [value]="item"
+                                (input)="updateListItem(entry[0], $index, $any($event.target).value)">
+                              <button class="pb-icon-btn pb-icon-btn--danger" title="Xóa"
+                                (click)="removeListItem(entry[0], $index)">🗑️</button>
+                            </div>
+                          }
+                          <button class="pb-btn pb-btn--sm pb-btn--accent pb-field__list-add"
+                            (click)="addListItem(entry[0])">
+                            ＋ Thêm mục
+                          </button>
+                        </div>
+                      }
                     }
                   </div>
                 }

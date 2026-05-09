@@ -2,12 +2,13 @@ import { Component, inject, OnInit, ChangeDetectorRef, OnDestroy } from '@angula
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AdminService } from '../../../core/services/admin.service';
 import { AiThemeService, AiPalette } from '../../../core/services/ai-theme.service';
 import { THEME_PRESETS, ThemePreset } from '../../../core/constants/theme-presets';
-import { SiteConfigMap } from '../../../core/models/interfaces';
+import { SiteConfigMap, NavigationItem } from '../../../core/models/interfaces';
 
-type TabKey = 'general' | 'branding' | 'theme' | 'contact' | 'project' | 'lead' | 'seo';
+type TabKey = 'general' | 'branding' | 'theme' | 'contact' | 'project' | 'lead' | 'seo' | 'navigation';
 
 interface Tab {
   key: TabKey;
@@ -18,7 +19,7 @@ interface Tab {
 @Component({
   selector: 'app-admin-sites',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DragDropModule],
   templateUrl: './sites.component.html',
   styleUrl: './sites.component.css',
 })
@@ -55,13 +56,14 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
 
   // V6: Removed features, layout, sections tabs — now in Page Builder
   readonly tabs: Tab[] = [
-    { key: 'general',  label: 'Tổng quan',  icon: '⚙️' },
-    { key: 'branding', label: 'Thương hiệu', icon: '🏷️' },
-    { key: 'theme',    label: 'Giao diện',   icon: '🎨' },
-    { key: 'contact',  label: 'Liên hệ',     icon: '📞' },
-    { key: 'project',  label: 'Dự án',       icon: '🏗️' },
-    { key: 'lead',     label: 'Lead',        icon: '📝' },
-    { key: 'seo',      label: 'SEO',         icon: '🔍' },
+    { key: 'general',    label: 'Tổng quan',  icon: '⚙️' },
+    { key: 'branding',   label: 'Thương hiệu', icon: '🏷️' },
+    { key: 'theme',      label: 'Giao diện',   icon: '🎨' },
+    { key: 'contact',    label: 'Liên hệ',     icon: '📞' },
+    { key: 'navigation', label: 'Menu',         icon: '📋' },
+    { key: 'project',    label: 'Dự án',       icon: '🏗️' },
+    { key: 'lead',       label: 'Lead',        icon: '📝' },
+    { key: 'seo',        label: 'SEO',         icon: '🔍' },
   ];
 
   // Forms
@@ -72,6 +74,11 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   projectForm!: FormGroup;
   leadForm!: FormGroup;
   seoForm!: FormGroup;
+
+  // V5: Menu management state
+  menuItems: NavigationItem[] = [];
+  editingMenuItem: NavigationItem | null = null;
+  showMenuForm = false;
 
   // V6: Features, layout, sectionsData — now managed by Page Builder
 
@@ -196,6 +203,15 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
     if (configs.project) this.projectForm.patchValue(configs.project);
     if (configs.lead) this.leadForm.patchValue(configs.lead);
     if (configs.seo) this.seoForm.patchValue(configs.seo);
+    // V5: Navigation / Menu
+    if ((configs as any).navigation?.items) {
+      this.menuItems = (configs as any).navigation.items.map((item: any, i: number) => ({
+        ...item,
+        parentId: item.parentId ?? 0,
+        sortOrder: item.sortOrder ?? i,
+      }));
+      this.sortMenuItems();
+    }
     // V6: features, layout, sections — loaded exclusively by Page Builder
   }
 
@@ -237,13 +253,14 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
         const siteId = this.editId || res.id;
 
         // Step 2: Save config groups (V6: features/layout/sections managed by Page Builder)
-        const configs: Partial<SiteConfigMap> = {
+        const configs: Partial<SiteConfigMap> & { navigation?: any } = {
           branding: this.brandingForm.value,
           theme: this.themeForm.value,
           contact: this.contactForm.value,
           project: this.projectForm.value,
           lead: this.leadForm.value,
           seo: this.seoForm.value,
+          navigation: { items: this.menuItems },
         };
 
         this.admin.updateSiteConfigs(siteId, configs).subscribe({
@@ -315,6 +332,9 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
     this.editId = 0;
     this.configLoaded = false;
     this.activeTab = 'general';
+    this.menuItems = [];
+    this.editingMenuItem = null;
+    this.showMenuForm = false;
     this.initForms();
     this.cdr.detectChanges();
   }
@@ -475,5 +495,149 @@ export class AdminSitesComponent implements OnInit, OnDestroy {
   openBuilder(): void {
     if (!this.editId) return;
     this.router.navigate(['/admin/builder'], { queryParams: { site_id: this.editId } });
+  }
+
+  // ---------------------------------------------------------------
+  // V5: Menu Management
+  // ---------------------------------------------------------------
+
+  /** Get top-level menu items (parentId = 0 or undefined) */
+  getTopLevelItems(): NavigationItem[] {
+    return this.menuItems.filter(i => !i.parentId || i.parentId === 0);
+  }
+
+  /** Get children of a specific parent menu item by key */
+  getChildItems(parentKey: string): NavigationItem[] {
+    const parentIdx = this.menuItems.findIndex(i => i.key === parentKey);
+    if (parentIdx < 0) return [];
+    // parentId stores the 1-based index of the parent for clarity
+    return this.menuItems.filter(i => i.parentId === parentIdx + 1);
+  }
+
+  /** Sort menu items by sortOrder */
+  private sortMenuItems(): void {
+    this.menuItems.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  }
+
+  /** Reassign sortOrder after reorder */
+  private reindexMenuItems(): void {
+    this.menuItems.forEach((item, i) => item.sortOrder = i);
+  }
+
+  /** Open add new menu item form */
+  addMenuItem(parentId: number = 0): void {
+    this.editingMenuItem = {
+      key: '',
+      label: '',
+      anchor: '',
+      icon: '',
+      visible: true,
+      parentId,
+      sortOrder: this.menuItems.length,
+    };
+    this.showMenuForm = true;
+    this.cdr.detectChanges();
+  }
+
+  /** Edit an existing menu item */
+  editMenuItem(item: NavigationItem): void {
+    this.editingMenuItem = { ...item };
+    this.showMenuForm = true;
+    this.cdr.detectChanges();
+  }
+
+  /** Save (add or update) menu item */
+  saveMenuItem(): void {
+    if (!this.editingMenuItem || !this.editingMenuItem.key || !this.editingMenuItem.label) return;
+
+    const idx = this.menuItems.findIndex(i => i.key === this.editingMenuItem!.key);
+    if (idx >= 0) {
+      // Update existing
+      this.menuItems[idx] = { ...this.editingMenuItem };
+    } else {
+      // Add new
+      this.menuItems.push({ ...this.editingMenuItem });
+    }
+
+    this.reindexMenuItems();
+    this.cancelMenuEdit();
+    this.cdr.detectChanges();
+  }
+
+  /** Cancel menu item edit */
+  cancelMenuEdit(): void {
+    this.editingMenuItem = null;
+    this.showMenuForm = false;
+    this.cdr.detectChanges();
+  }
+
+  /** Remove a menu item and its children */
+  removeMenuItem(item: NavigationItem): void {
+    const parentIdx = this.menuItems.findIndex(i => i.key === item.key);
+    // Remove children first
+    this.menuItems = this.menuItems.filter(i => i.parentId !== parentIdx + 1);
+    // Remove the item itself
+    this.menuItems = this.menuItems.filter(i => i.key !== item.key);
+    this.reindexMenuItems();
+    this.cdr.detectChanges();
+  }
+
+  /** Toggle visibility */
+  toggleMenuItemVisibility(item: NavigationItem): void {
+    const found = this.menuItems.find(i => i.key === item.key);
+    if (found) {
+      found.visible = found.visible === false ? true : false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  /** CDK Drag & Drop handler for top-level items */
+  onMenuDrop(event: CdkDragDrop<NavigationItem[]>): void {
+    const topItems = this.getTopLevelItems();
+    moveItemInArray(topItems, event.previousIndex, event.currentIndex);
+
+    // Rebuild full list: top-level items in new order, each followed by their children
+    const reordered: NavigationItem[] = [];
+    for (const parent of topItems) {
+      reordered.push(parent);
+      const children = this.getChildItems(parent.key);
+      reordered.push(...children);
+    }
+    this.menuItems = reordered;
+    this.reindexMenuItems();
+    this.cdr.detectChanges();
+  }
+
+  /** CDK Drag & Drop handler for child items */
+  onChildMenuDrop(event: CdkDragDrop<NavigationItem[]>, parentKey: string): void {
+    const children = this.getChildItems(parentKey);
+    moveItemInArray(children, event.previousIndex, event.currentIndex);
+
+    // Replace children in the main array
+    const parentIdx = this.menuItems.findIndex(i => i.key === parentKey);
+    const withoutOldChildren = this.menuItems.filter(i => i.parentId !== parentIdx + 1);
+    // Insert children after parent
+    const insertIdx = withoutOldChildren.findIndex(i => i.key === parentKey) + 1;
+    withoutOldChildren.splice(insertIdx, 0, ...children);
+    this.menuItems = withoutOldChildren;
+    this.reindexMenuItems();
+    this.cdr.detectChanges();
+  }
+
+  /** Generate a unique key from label */
+  generateMenuKey(label: string): void {
+    if (!this.editingMenuItem) return;
+    // Only auto-generate if key is empty or was auto-generated before
+    const existingIdx = this.menuItems.findIndex(i => i.key === this.editingMenuItem!.key);
+    if (existingIdx >= 0) return; // Don't overwrite existing key on edit
+
+    this.editingMenuItem.key = label
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .substring(0, 30);
+    this.cdr.detectChanges();
   }
 }

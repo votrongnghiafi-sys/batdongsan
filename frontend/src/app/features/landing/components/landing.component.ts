@@ -177,6 +177,12 @@ export class LandingComponent implements OnInit {
   }
 
   private applyConfig(config: SiteConfig): void {
+    // V8: Map V2 API's 'project_data' → 'project' for backward compatibility
+    // The V2 API returns the project entity under 'project_data' while V1 uses 'project'
+    if ((config as any).project_data && !config.project?.id) {
+      (config as any).project = (config as any).project_data;
+    }
+
     this.config = config;
     this.layout = this.siteService.getHomepageLayout();
 

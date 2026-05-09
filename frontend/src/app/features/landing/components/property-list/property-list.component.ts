@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subject, switchMap, finalize, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { SiteService } from '../../../../core/services/site.service';
 import { PropertyService, PropertyFilters } from '../../../../core/services/property.service';
-import { Property, PaginatedResponse } from '../../../../core/models/interfaces';
+import { Property } from '../../../../core/models/interfaces';
 import { formatPrice, formatArea } from '../../../../shared/utils/helpers';
 
 @Component({
@@ -12,9 +13,10 @@ import { formatPrice, formatArea } from '../../../../shared/utils/helpers';
   templateUrl: './property-list.component.html',
   styleUrl: './property-list.component.css',
 })
-export class PropertyListComponent implements OnInit, AfterViewInit {
+export class PropertyListComponent implements OnInit, AfterViewInit, OnDestroy {
   private siteService = inject(SiteService);
   private propertyService = inject(PropertyService);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('sectionRef') sectionRef!: ElementRef;
   isVisible = false;
@@ -27,13 +29,60 @@ export class PropertyListComponent implements OnInit, AfterViewInit {
 
   // Filters
   selectedBedrooms: number | null = null;
-  bedroomOptions = [1, 2, 3, 4, 5];
+  bedroomOptions: number[] = [];
+
+  // V8: Reactive filter stream + cleanup
+  private filterSubject = new Subject<PropertyFilters>();
+  private destroy$ = new Subject<void>();
 
   formatPrice = formatPrice;
   formatArea = formatArea;
 
   ngOnInit(): void {
-    this.loadProperties();
+    // V8: Read builder config (sections_config.property-list) for limit
+    const sc = this.siteService.config?.sections_config?.['property-list'] as Record<string, unknown> | undefined;
+    if (sc?.['limit']) {
+      this.perPage = sc['limit'] as number;
+    }
+
+    // V8: Set up reactive filter pipeline — debounced & cancellable
+    this.filterSubject.pipe(
+      debounceTime(150),                      // Prevent rapid-fire clicks
+      distinctUntilChanged((a, b) =>           // Skip duplicate filters
+        a.bedrooms === b.bedrooms && a.page === b.page
+      ),
+      switchMap(filters => {                   // Cancel previous in-flight request
+        this.loading = true;
+        this.cdr.detectChanges();
+        return this.propertyService.getProperties(filters).pipe(
+          finalize(() => {
+            this.loading = false;
+            this.cdr.detectChanges();
+          })
+        );
+      }),
+      takeUntil(this.destroy$),
+    ).subscribe({
+      next: (res) => {
+        this.properties = res.items;
+        this.totalPages = res.totalPages;
+
+        // V8: Auto-detect available bedroom options from initial full load
+        if (this.selectedBedrooms === null && this.bedroomOptions.length === 0) {
+          this.extractBedroomOptions(res.items);
+        }
+
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.properties = [];
+        this.totalPages = 0;
+        this.cdr.detectChanges();
+      },
+    });
+
+    // Trigger initial load
+    this.emitFilter();
   }
 
   ngAfterViewInit(): void {
@@ -41,6 +90,7 @@ export class PropertyListComponent implements OnInit, AfterViewInit {
       ([entry]) => {
         if (entry.isIntersecting) {
           this.isVisible = true;
+          this.cdr.detectChanges();
           observer.disconnect();
         }
       },
@@ -51,11 +101,16 @@ export class PropertyListComponent implements OnInit, AfterViewInit {
     }
   }
 
-  loadProperties(): void {
-    const projectId = this.siteService.config?.project?.id;
-    if (!projectId) return;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    this.loading = true;
+  /** Build current filter and emit to the reactive stream */
+  private emitFilter(): void {
+    const projectId = this.siteService.config?.project?.id
+      || (this.siteService.config as any)?.project_data?.id;
+    if (!projectId) return;
 
     const filters: PropertyFilters = {
       projectId,
@@ -63,32 +118,32 @@ export class PropertyListComponent implements OnInit, AfterViewInit {
       perPage: this.perPage,
     };
 
-    if (this.selectedBedrooms) {
+    if (this.selectedBedrooms !== null) {
       filters.bedrooms = this.selectedBedrooms;
     }
 
-    this.propertyService.getProperties(filters).subscribe({
-      next: (res) => {
-        this.properties = res.items;
-        this.totalPages = res.totalPages;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      },
-    });
+    this.filterSubject.next(filters);
+  }
+
+  /** V8: Extract unique bedroom counts from data to build dynamic filter buttons */
+  private extractBedroomOptions(items: Property[]): void {
+    const set = new Set<number>();
+    for (const item of items) {
+      if (item.bedrooms) set.add(item.bedrooms);
+    }
+    this.bedroomOptions = Array.from(set).sort((a, b) => a - b);
   }
 
   filterByBedrooms(bedrooms: number | null): void {
     this.selectedBedrooms = bedrooms;
     this.currentPage = 1;
-    this.loadProperties();
+    this.emitFilter();
   }
 
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
-    this.loadProperties();
+    this.emitFilter();
   }
 
   get pages(): number[] {
